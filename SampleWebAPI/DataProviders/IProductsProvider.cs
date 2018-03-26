@@ -11,6 +11,9 @@ namespace SampleWebAPI.DataProviders
          int AddItem(Products product);
          Products GetItemById(int id);
          IEnumerable<Products> GetAllProducts();
+         void Delete(int id);
+         void Update(int id,Products product);
+
 
     }
 }

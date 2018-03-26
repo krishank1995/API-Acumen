@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using CallTracer.DataProviders;
 using CallTracer.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -14,21 +15,23 @@ namespace CallTracer.Middlewares
     {
         private Stopwatch _timeKeeper;
         private readonly RequestDelegate _next;
-        //private ITraceMetadata _trace;
+        private ITraceMetadata _trace;
+        private ITraceRepository _repository;
 
-        public TracingMiddleware(RequestDelegate next)//ITraceMetadata traceMetadata)
+        public TracingMiddleware(RequestDelegate next,ITraceMetadata traceMetadata,ITraceRepository repository)
         {
-           // _trace = traceMetadata;
+            _trace = traceMetadata;
             _next = next;
+            _repository = repository;
         }
 
         public async Task Invoke(HttpContext httpContext)
         {
-            TraceMetadata _trace = new TraceMetadata();
+        
             _timeKeeper = Stopwatch.StartNew();
             await _next(httpContext);
             _timeKeeper.Stop();
-            _trace.TraceDetails(httpContext, "level",_timeKeeper.Elapsed.TotalMilliseconds);
+            _repository.SaveTrace(_trace.TraceDetails(httpContext, "level", _timeKeeper.Elapsed.TotalMilliseconds)); // --> Do the context to class mapping here
 
         }
     }

@@ -8,6 +8,7 @@ namespace CallTracer.Models
 {
     public class TraceMetadata:ITraceMetadata
     {
+        public int Id { get; set; }
         public string Type { get; set; }  // --> Failure,Success,Warning
         public object RequestContent { get; set; }
         public string RequestUri { get; set; }  //
@@ -25,8 +26,10 @@ namespace CallTracer.Models
             RequestUri = context.Request.Path;
             ResponseStatusCode = context.Response.StatusCode;
             ResponceTimeMs = responceTime;
-
+            return this;
         }
+
+        
 
         public void TraceContent(object request, object reply)
         {

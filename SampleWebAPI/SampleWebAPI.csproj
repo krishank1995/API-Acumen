@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CallTracer\CallTracer.csproj" />
+    <ProjectReference Include="..\CallTracerLibrary\CallTracerLibrary.csproj" />
   </ItemGroup>
 
 </Project>

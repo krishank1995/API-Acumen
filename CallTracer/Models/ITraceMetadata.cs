@@ -1,14 +1,23 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
+﻿using CallTracer.Models;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
-namespace CallTracer.Models
+namespace CallTracerLibrary.DataProviders
 {
-   public  interface ITraceMetadata
+    //public interface ITraceRepository
+    //{
+    //    void SaveTrace(ITraceMetadata metadata); //Save --> Can be async
+    //    void RequestAllTraces(); //GetAll--> With pagination
+    //    void RequestSpecificTrace(int id); //Get
+    //}
+
+    public interface IRepository<TData, TKey>
     {
-       void TraceDetails(HttpContext context, string level, double responceTime);
-        void TraceContent(object request, object reply);
+        Task SaveAsync(TData value);
+
+        // TODO: Add pagination params
+        Task<IEnumerable<TData>> GetAll();
+
+        Task<TData> Get(TKey id);
     }
 }

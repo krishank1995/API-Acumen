@@ -2,43 +2,93 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CallTracerLibrary.DataProviders;
+
+using CallTracerLibrary.Middlewares;
+using CallTracerLibrary.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SampleWebAPI.DataProviders;
-using CallTracer.Middlewares;
+
+using Steeltoe.CloudFoundry.Connector.MySql;
+using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
 
 namespace SampleWebAPI
 {
     public class Startup
     {
+        //public IConfiguration Configuration { get; private set; }  //PCF WHAT IS THIS ??
+
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc()
-                .AddXmlDataContractSerializerFormatters(); 
 
+            // Add MySqlConnection configured from Configuration
+            //services.AddDbContext<MySQLRepository>(options => options.UseMySql(Configuration)); //PCF
+
+            services.AddRouting();
+
+
+            services.AddMvc(setupAction =>
+            {
+                setupAction.ReturnHttpNotAcceptable = true;
+                setupAction.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter());
+                setupAction.InputFormatters.Add(new XmlDataContractSerializerInputFormatter());
+            });
+                
+           
             services.AddSingleton<IProductsProvider, ProductsProviderMongo>();
+
+            services.AddSingleton<IRepository<TraceMetadata,int>, MySQLRepository>();    //InMemory,Mongo,MySQL --> Availible Repositoreis 
+         // services.AddSingleton<IRepository<TraceMetadata, int>, MongoRepository>();
+         // services.AddSingleton<IRepository<TraceMetadata, int>, InMemoryRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             // app.UseStaticFiles();
+          //  app.TraceEndPoint();
             app.UseMiddleware<TracingMiddleware>();
-            app.UseMvc();
+           
 
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                //app.Run(async (context) =>
+                //{
+                //    await context.Response.WriteAsync("Hello World!");
+                //});
             }
 
-            app.Run(async (context) =>
+            else if(env.IsProduction())  //Not in Devlopment mode --> Extra Addtion
             {
-                await context.Response.WriteAsync("Hello World!");
-            });
+                app.UseExceptionHandler(appBuilder=>
+                {
+                    appBuilder.Run(async context =>
+                    {
+                        context.Response.StatusCode = 500;
+                        await context.Response.WriteAsync("Unexpected Fault happended ");
+
+                    });
+
+                });
+                
+            }
+            else
+            {
+                //
+            }
+            
+            app.UseMvc();
+           
+
         }
     }
 }

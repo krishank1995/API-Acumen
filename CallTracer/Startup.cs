@@ -19,8 +19,8 @@ namespace CallTracer
         {
             services.AddMvc();
 
-            services.AddSingleton<ITraceRepository, MongoRepository>();
-            services.AddTransient<ITraceMetadata, TraceMetadata>();
+           
+            //services.AddTransient<ITraceMetadata, TraceMetadata>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
