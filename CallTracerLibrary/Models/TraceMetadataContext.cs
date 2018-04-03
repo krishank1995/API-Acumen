@@ -7,27 +7,36 @@ using MySql.Data.EntityFrameworkCore.Extensions;
 
 namespace CallTracerLibrary.Models
 {
-    //class TraceMetadataContext : DbContext
-    //{
-    //    public DbSet<TraceMetadata> CallTrace { get; set; }
+    public class TraceMetadataContext : DbContext
+    {
+        public TraceMetadataContext()
+        {
+        }
 
-    //    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    //    {
-    //        optionsBuilder.UseMySQL("server=localhost;database=ApiCallTraces;user=root;password=password;SslMode=none;");
-    //    }
+        public TraceMetadataContext(DbContextOptions options) : base(options) //PCF
+        {
 
-    //    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    //    {
-    //        base.OnModelCreating(modelBuilder);
+        }
+
+        public DbSet<TraceMetadata> CallTrace { get; set; }
+
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    optionsBuilder.UseMySQL("server=localhost;database=ApiCallTraces;user=root;password=password;SslMode=none;");
+        //}
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
 
 
 
-    //        modelBuilder.Entity<TraceMetadata>(entity =>
-    //        {
-    //            entity.HasKey(e => e.Id);
-    //            //entity.Property(e => e.Name).IsRequired();
+            modelBuilder.Entity<TraceMetadata>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                //entity.Property(e => e.Name).IsRequired();
 
-    //        });
-    //    }
-    //}
+            });
+        }
+    }
 }

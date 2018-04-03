@@ -10,7 +10,7 @@ namespace CallTracerLibrary.DataProviders
 {
     public class MongoRepository : IRepository<TraceMetadata,int>
     {
-        private static MongoClient client = new MongoClient("mongodb://pendwgiiap02.pen.apac.dell.com:27017");
+        private static MongoClient client = new MongoClient("mongodb://AUSSWGIICACPE01.aus.amer.dell.com:27017"); //("mongodb://pendwgiiap02.pen.apac.dell.com:27017");
         private static IMongoDatabase _database = client.GetDatabase("CallTracer");
         private static IMongoCollection<TraceMetadata> collection  =_database.GetCollection<TraceMetadata>("TrackingHistoryNew");
       
@@ -39,8 +39,8 @@ namespace CallTracerLibrary.DataProviders
 
         public Task SaveAsync(TraceMetadata trace)
         {
-           // var collection= _database.GetCollection<TraceMetadata>("TrackingHistoryNew");
-            //trace.Id = (int)collection.Count(new BsonDocument(), null) + 1;
+            var collection = _database.GetCollection<TraceMetadata>("TrackingHistoryNew");
+            trace.Id = (int)collection.Count(new BsonDocument(), null) + 1;
             return collection.InsertOneAsync(trace);
         }
 

@@ -75,7 +75,6 @@ namespace CallTracerLibrary.Middlewares
 
                 int pageSize, pageNumber, recordsToSkip;
                 var pageSizeStr = httpContext.Request.Query["size"].ToString();
-
                 var pageNumberStr = httpContext.Request.Query["page"].ToString();
                 int.TryParse(pageSizeStr, out pageSize);
                 int.TryParse(pageNumberStr, out pageNumber);
@@ -84,16 +83,8 @@ namespace CallTracerLibrary.Middlewares
 
 
                 var asyncDocuments = await _repository.GetAll();
-
-                var jsonWriterSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
-                // var asyncDocuments = await logList.Find(Builders<TraceMetadata>.Filter.Empty)
-                // .ToListAsync();
-                var docs = asyncDocuments.Select(q => q.ToJson(jsonWriterSettings))
-                .Skip(recordsToSkip)
-                .Take(pageSize)
-                .ToList();
-                var json = Newtonsoft.Json.JsonConvert.SerializeObject(docs);
-
+                var asyncDocumentsPaged = asyncDocuments.Skip(recordsToSkip).Take(pageSize);
+                var json = Newtonsoft.Json.JsonConvert.SerializeObject(asyncDocumentsPaged);
                 httpContext.Response.ContentType = "Application/json";
                 await httpContext.Response.WriteAsync(json);
             }

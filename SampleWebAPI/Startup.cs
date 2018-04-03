@@ -15,14 +15,20 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SampleWebAPI.DataProviders;
 
-using Steeltoe.CloudFoundry.Connector.MySql;
+//using Steeltoe.CloudFoundry.Connector.MySql;
 using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
 
 namespace SampleWebAPI
 {
     public class Startup
     {
-        //public IConfiguration Configuration { get; private set; }  //PCF WHAT IS THIS ??
+        public IConfiguration Configuration { get; }  //PCF WHAT IS THIS ??
+
+        public Startup(IConfiguration configuration) //PCF
+        {
+            Configuration = configuration;
+        }
+
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
@@ -30,7 +36,7 @@ namespace SampleWebAPI
         {
 
             // Add MySqlConnection configured from Configuration
-            //services.AddDbContext<MySQLRepository>(options => options.UseMySql(Configuration)); //PCF
+            services.AddDbContext<TraceMetadataContext>(options => options.UseMySql(Configuration)); //PCF
 
             services.AddRouting();
 
@@ -45,16 +51,17 @@ namespace SampleWebAPI
            
             services.AddSingleton<IProductsProvider, ProductsProviderMongo>();
 
-            services.AddSingleton<IRepository<TraceMetadata,int>, MySQLRepository>();    //InMemory,Mongo,MySQL --> Availible Repositoreis 
-         // services.AddSingleton<IRepository<TraceMetadata, int>, MongoRepository>();
+          // services.AddSingleton<IRepository<TraceMetadata,int>, MySQLRepository>();    //InMemory,Mongo,MySQL --> Availible Repositoreis 
+              services.AddSingleton<IRepository<TraceMetadata, int>, MongoRepository>();
          // services.AddSingleton<IRepository<TraceMetadata, int>, InMemoryRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            // app.UseStaticFiles();
-          //  app.TraceEndPoint();
+            app.UseCors("AllowAll");
+            app.UseStaticFiles();
+            //  app.TraceEndPoint();
             app.UseMiddleware<TracingMiddleware>();
            
 

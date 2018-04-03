@@ -1,0 +1,54 @@
+#tracetable {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+    #tracetable td, #tracetable th {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+
+    #tracetable tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    #tracetable tr:hover {
+        background-color: #ddd;
+    }
+
+    #tracetable th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        text-align: left;
+        background-color: #4CAF50;
+        color: white;
+    }
+
+
+#tracetabledata {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+    #tracetabledata td, #tracetabledata th {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+
+    #tracetabledata tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    #tracetabledata tr:hover {
+        background-color: #ddd;
+    }
+
+    #tracetabledata th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        text-align: left;
+        background-color: #4CAF50;
+        color: white;
+    }

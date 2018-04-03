@@ -1,0 +1,7 @@
+﻿---
+applications:
+- name: Call-Tracer
+  env:
+    ASPNETCORE_ENVIRONMENT: POCApps
+  services:
+   - myMySqlService

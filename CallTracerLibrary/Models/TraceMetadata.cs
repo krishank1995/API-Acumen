@@ -1,14 +1,20 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace CallTracerLibrary.Models
 {
+    [Table("CallTrace")]
     public class TraceMetadata
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; } //Find better alternative to this ID // Guid maybe --> Genric Id 
+
         public string Type { get; set; }  // --> Failure,Success,Warning
         public string RequestContent { get; set; }
         public string RequestUri { get; set; }  //

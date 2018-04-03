@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,7 +13,6 @@
     <PackageReference Include="MySql.Data" Version="8.0.10-rc" />
     <PackageReference Include="MySql.Data.EntityFrameworkCore" Version="8.0.10-rc" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
-    <PackageReference Include="Steeltoe.CloudFoundry.Connector.MySql" Version="1.1.0" />
   </ItemGroup>
 
   <ItemGroup>

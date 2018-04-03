@@ -19,43 +19,17 @@ using MySql.Data.EntityFrameworkCore.Extensions;
 
 namespace CallTracerLibrary.DataProviders
 {
-    public class MySQLRepository:DbContext,IRepository<TraceMetadata,int>
+    public class MySQLRepository:IRepository<TraceMetadata,int>
 
     {
-        //public MySQLRepository(DbContextOptions options) : base(options)
-        //{
-
-        //}
-        
-        public DbSet<TraceMetadata> CallTrace { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseMySQL("server=localhost;database=ApiCallTraces;user=root;password=password;SslMode=none;");
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-
-
-            modelBuilder.Entity<TraceMetadata>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                //entity.Property(e => e.Name).IsRequired();
-
-            });
-        }
-
-
+      
 
         public async Task<TraceMetadata> Get(int id)
         {
-           // using (var context = new TraceMetadataContext())
+            using (var context = new TraceMetadataContext())
             {
                 List<TraceMetadata> list = new List<TraceMetadata>();
-                var result = CallTrace;
+                var result = context.CallTrace;
 
                 foreach (var trace in result)
                 {
@@ -71,10 +45,10 @@ namespace CallTracerLibrary.DataProviders
 
         public async Task<IEnumerable<TraceMetadata>> GetAll()
         {
-           // using (var context = new TraceMetadataContext())
+            using (var context = new TraceMetadataContext())
             {
                 List<TraceMetadata> list = new List<TraceMetadata>();
-                var result = CallTrace;
+                var result = context.CallTrace;
 
                 foreach (var trace in result)
                 {
@@ -93,15 +67,15 @@ namespace CallTracerLibrary.DataProviders
 
         public Task SaveAsync(TraceMetadata value)
         {
-           // using (var context = new TraceMetadataContext())
+            using (var context = new TraceMetadataContext())
             {
                 // Creates the database if not exists
-                Database.EnsureCreated();
+                context.Database.EnsureCreated();
    
-                CallTrace.Add(value);
+                context.CallTrace.Add(value);
 
                 // Saves changes
-                return SaveChangesAsync();
+                return context.SaveChangesAsync();
             }
         }
 
