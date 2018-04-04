@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using CallTracerLibrary.DataProviders;
 using CallTracerLibrary.Models;
@@ -40,7 +44,7 @@ namespace CallTracerLibrary.Middlewares
             //End Test Block
 
             TraceMetadata _trace = new TraceMetadata();
-            if (httpContext.Request.Path != "/trace")
+            if (httpContext.Request.Path != "/trace" && httpContext.Request.Path != "/ui")
             {
                 _trace.RequestTimestamp = DateTime.Now;
                 _timeKeeper = Stopwatch.StartNew();
@@ -70,7 +74,8 @@ namespace CallTracerLibrary.Middlewares
                 _repository.SaveAsync(_trace);// Should await be used ?
 
             }
-            else
+
+            else if(httpContext.Request.Path == "/trace") //Request Trace Logs --> Configurable  Endpoint
             {
 
                 int pageSize, pageNumber, recordsToSkip;
@@ -85,12 +90,40 @@ namespace CallTracerLibrary.Middlewares
                 var asyncDocuments = await _repository.GetAll();
                 var asyncDocumentsPaged = asyncDocuments.Skip(recordsToSkip).Take(pageSize);
                 var json = Newtonsoft.Json.JsonConvert.SerializeObject(asyncDocumentsPaged);
+
                 httpContext.Response.ContentType = "Application/json";
                 await httpContext.Response.WriteAsync(json);
+            }
+
+            else if(httpContext.Request.Path == "/ui") //UI --> Endpoint should be configurable
+            {
+                string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                string filePath = System.IO.Path.Combine(currentDirectory,"FrontEnd","templete.html"); 
+
+                string readContents;
+                using (StreamReader streamReader = new StreamReader(filePath, Encoding.UTF8))
+                {
+                    readContents = streamReader.ReadToEnd();
+                }
+
+                httpContext.Response.ContentType = "text/html";
+                await httpContext.Response.WriteAsync(readContents);
             }
         }
     }
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     // Extension method used to add the middleware to the HTTP request pipeline.
     public static class TracingMiddlewareExtensions
     {

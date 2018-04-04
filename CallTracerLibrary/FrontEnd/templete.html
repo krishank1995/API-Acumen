@@ -1,0 +1,115 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Call Traces</title>
+    <style>
+        #tracetable {
+            font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+            #tracetable td, #tracetable th {
+                border: 1px solid #ddd;
+                padding: 8px;
+            }
+
+            #tracetable tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+
+            #tracetable tr:hover {
+                background-color: #ddd;
+            }
+
+            #tracetable th {
+                padding-top: 12px;
+                padding-bottom: 12px;
+                text-align: left;
+                background-color: #4CAF50;
+                color: white;
+            }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> 
+    <script>
+        var header = document.querySelector('header');
+        var section = document.querySelector('section');
+        var requestURL;
+
+        function onButtonClick() {
+            var pageSize = document.getElementById("pageSize").value;
+            var pageNumber = document.getElementById("pageNumber").value - 1;
+            requestURL = 'http://localhost:62150/trace'; //Fix this hard coding plus will jQ work from CDN when offline
+            var postString = '?page=' + pageNumber + "&size=" + pageSize;
+            requestURL = requestURL + postString;
+            requestTraces();
+        }
+
+        function requestTraces() {
+            var request = new XMLHttpRequest();
+            request.open('GET', requestURL);
+            request.responseType = 'json';
+            request.send();
+            request.onload = function () {
+                var traces = request.response;
+                console.log(traces);
+                showTracesTable(traces);
+            }
+        }
+
+        function showTracesTable(jsonObj) {
+            var table = document.getElementById("tracetable");
+            $("#tracetable").find("tr:not(:first)").remove(); //jQ
+            for (var i = 0; i < jsonObj.length; i++) {
+                //Create Row
+                var row = table.insertRow(i + 1);
+                //Populate Columns
+                var _id = row.insertCell(0).innerHTML = jsonObj[i].Id;
+                var _type = row.insertCell(1).innerHTML = jsonObj[i].Type;
+                var _requestContent = row.insertCell(2).innerHTML = jsonObj[i].RequestContent;
+                var _requestUri = row.insertCell(3).innerHTML = jsonObj[i].RequestUri;
+                var _requestMethod = row.insertCell(4).innerHTML = jsonObj[i].RequestMethod;
+                var _requestTimestamp = row.insertCell(5).innerHTML = jsonObj[i].RequestTimestamp;
+                var _responseContent = row.insertCell(6).innerHTML = jsonObj[i].ResponseContent;
+                var _responseStatusCode = row.insertCell(7).innerHTML = jsonObj[i].ResponseStatusCode;
+                var _responseTimestamp = row.insertCell(8).innerHTML = jsonObj[i].ResponseTimestamp;
+                var _responseTimeMs = row.insertCell(9).innerHTML = jsonObj[i].ResponseTimestamp;
+            }
+
+        }
+    </script>
+    <noscript>Sorry, your browser does not support JavaScript!</noscript>
+</head>
+
+<body>
+    <header></header>
+
+    <options>
+        <input type="text" id="pageSize" value="Page Size">
+        <input type="text" id="pageNumber" value="Page Number">
+        <button onclick="onButtonClick()">Go</button>
+        <br />
+    </options>
+
+    <section>
+        <table id="tracetable">
+            <tr>
+                <th>Id</th>
+                <th>Type</th>
+                <th>Request Content</th>
+                <th>Request Uri</th>
+                <th>Request Method</th>
+                <th>Request Timestamp</th>
+                <th>Response Content</th>
+                <th>Response Status</th>
+                <th>Response Timestamp</th>
+                <th>Response TimeMs</th>
+            </tr>
+        </table>
+    </section>
+
+</body>
+
+</html>
