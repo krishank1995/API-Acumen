@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -19,9 +20,11 @@ namespace CallTracerLibrary.Models
         public string RequestContent { get; set; }
         public string RequestUri { get; set; }  //
         public string RequestMethod { get; set; }   //
+        [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
         public DateTime? RequestTimestamp { get; set; } //
         public string ResponseContent { get; set; }
         public int ResponseStatusCode { get; set; } //
+        [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
         public DateTime? ResponseTimestamp { get; set; } //
         public double ResponseTimeMs { get; set; } //
 

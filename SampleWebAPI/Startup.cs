@@ -27,6 +27,7 @@ namespace SampleWebAPI
         public Startup(IConfiguration configuration) //PCF
         {
             Configuration = configuration;
+
         }
 
 
@@ -53,7 +54,12 @@ namespace SampleWebAPI
 
           // services.AddSingleton<IRepository<TraceMetadata,int>, MySQLRepository>();    //InMemory,Mongo,MySQL --> Availible Repositoreis 
               services.AddSingleton<IRepository<TraceMetadata, int>, MongoRepository>();
-         // services.AddSingleton<IRepository<TraceMetadata, int>, InMemoryRepository>();
+            // services.AddSingleton<IRepository<TraceMetadata, int>, InMemoryRepository>();
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Swashbuckle.AspNetCore.Swagger.Info { Title = "Random", Version = "v1" });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -61,6 +67,10 @@ namespace SampleWebAPI
         {
             app.UseCors("AllowAll");
             app.UseStaticFiles();
+            app.UseSwagger().UseSwaggerUI( c=>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Random");
+            });
             //  app.TraceEndPoint();
             app.UseMiddleware<TracingMiddleware>();
            
