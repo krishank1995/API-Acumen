@@ -63,19 +63,24 @@
             var table = document.getElementById("tracetable");
             $("#tracetable").find("tr:not(:first)").remove(); //jQ
             for (var i = 0; i < jsonObj.length; i++) {
+                var j = 0
                 //Create Row
                 var row = table.insertRow(i + 1);
                 //Populate Columns
-                var _id = row.insertCell(0).innerHTML = jsonObj[i].Id;
-                var _type = row.insertCell(1).innerHTML = jsonObj[i].Type;
-                var _requestContent = row.insertCell(2).innerHTML = jsonObj[i].RequestContent;
-                var _requestUri = row.insertCell(3).innerHTML = jsonObj[i].RequestUri;
-                var _requestMethod = row.insertCell(4).innerHTML = jsonObj[i].RequestMethod;
-                var _requestTimestamp = row.insertCell(5).innerHTML = jsonObj[i].RequestTimestamp;
-                var _responseContent = row.insertCell(6).innerHTML = jsonObj[i].ResponseContent;
-                var _responseStatusCode = row.insertCell(7).innerHTML = jsonObj[i].ResponseStatusCode;
-                var _responseTimestamp = row.insertCell(8).innerHTML = jsonObj[i].ResponseTimestamp;
-                var _responseTimeMs = row.insertCell(9).innerHTML = jsonObj[i].ResponseTimestamp;
+                var _id = row.insertCell(j++).innerHTML = jsonObj[i].Id;
+                var _type = row.insertCell(j++).innerHTML = jsonObj[i].Type;
+                var _requestContent = row.insertCell(j++).innerHTML = jsonObj[i].RequestContent;
+                var _requestContentType = row.insertCell(j++).innerHTML = jsonObj[i].RequestContentType;
+                var _requestHost = row.insertCell(j++).innerHTML = jsonObj[i].RequestHost;
+                var _requestUri = row.insertCell(j++).innerHTML = jsonObj[i].RequestUri;
+                var _requestScheme = row.insertCell(j++).innerHTML = jsonObj[i].RequestScheme;
+                var _requestMethod = row.insertCell(j++).innerHTML = jsonObj[i].RequestMethod;
+                var _requestTimestamp = row.insertCell(j++).innerHTML = jsonObj[i].RequestTimestamp;
+                var _responseContent = row.insertCell(j++).innerHTML = jsonObj[i].ResponseContent;
+                var _responseContentType = row.insertCell(j++).innerHTML = jsonObj[i].ResponseContentType;
+                var _responseStatusCode = row.insertCell(j++).innerHTML = jsonObj[i].ResponseStatusCode;
+                var _responseTimestamp = row.insertCell(j++).innerHTML = jsonObj[i].ResponseTimestamp;
+                var _responseTimeMs = row.insertCell(j++).innerHTML = jsonObj[i].ResponseTimeMs;
             }
 
         }
@@ -99,10 +104,14 @@
                 <th>Id</th>
                 <th>Type</th>
                 <th>Request Content</th>
+                <th>Request Content Type</th>
+                <th>Request Host</th>
                 <th>Request Uri</th>
+                <th>Request Scheme</th>
                 <th>Request Method</th>
                 <th>Request Timestamp</th>
                 <th>Response Content</th>
+                <th>Response Content Type</th>
                 <th>Response Status</th>
                 <th>Response Timestamp</th>
                 <th>Response TimeMs</th>

@@ -23,9 +23,7 @@ namespace CallTracerLibrary.DataProviders
             
         public async Task<IEnumerable<TraceMetadata>> GetN(int n) //int pageSize, int pageNumber
         {
-
             var documents = collection.Find(Builders<TraceMetadata>.Filter.Empty).Limit(n).ToList();
-
             return documents;
         }
 

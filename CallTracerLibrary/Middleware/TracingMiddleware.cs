@@ -2,18 +2,14 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using CallTracerLibrary.DataProviders;
 using CallTracerLibrary.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using MongoDB.Bson;
-using MongoDB.Bson.IO;
+using Microsoft.AspNetCore.Http.Internal;
 using MongoDB.Driver;
-
 
 namespace CallTracerLibrary.Middlewares
 {
@@ -25,59 +21,62 @@ namespace CallTracerLibrary.Middlewares
         private IRepository<TraceMetadata, int> _repository;
         private static int _defaultPageSize = 20;
 
-
-        public TracingMiddleware(RequestDelegate next, IRepository<TraceMetadata, int> repository)//TraceMetadata traceMetadata//IApplicationBuilder app
+        public TracingMiddleware(RequestDelegate next, IRepository<TraceMetadata, int> repository)
         {
             _repository = repository;
             _next = next;
-
         }
-
-
+        
         public async Task Invoke(HttpContext httpContext)
         {
-
-            //Test Block
-           // MySQLRepository.Method();
-
-
-            //End Test Block
-
             TraceMetadata _trace = new TraceMetadata();
             if (httpContext.Request.Path != "/trace" && httpContext.Request.Path != "/ui")
             {
+                _trace.RequestContentType = httpContext.Request.ContentType;
+                _trace.ResponseContentType = httpContext.Response.ContentType;
                 _trace.RequestTimestamp = DateTime.Now;
                 _timeKeeper = Stopwatch.StartNew();
+                //await _next(httpContext); 
+                //_timeKeeper.Stop(); 
 
-                await _next(httpContext);
-                _timeKeeper.Stop();
+                #region Retrieve Request-Responce Content 
+                _trace.RequestContent = await FormatRequest(httpContext.Request);
+                var originalBodyStream = httpContext.Response.Body;
+                using (var responseBody = new MemoryStream())
+                {
+                        httpContext.Response.Body = responseBody;
+                        await _next(httpContext); 
+                        _timeKeeper.Stop(); 
+                        if(httpContext.Response.StatusCode!=204 && (httpContext.Response.ContentType== "application/json; charset=utf-8")) //Add XML
+                        {
+                            _trace.ResponseContent =  await FormatResponse(httpContext.Response);
+                            _trace.ResponseContentType = httpContext.Response.ContentType;
+                            await responseBody.CopyToAsync(originalBodyStream);
+                        }
+                        else
+                        {
+                            _trace.ResponseContent = "N/A";
+                            _trace.ResponseContentType = "N/A";
+                        }
+                }
+                #endregion
 
+                _trace.RequestContentType = httpContext.Request.ContentType;
                 _trace.ResponseTimestamp = DateTime.Now;
                 _trace.ResponseTimeMs = _timeKeeper.Elapsed.TotalMilliseconds;
                 _trace.ResponseStatusCode = httpContext.Response.StatusCode;
+                _trace.RequestScheme = httpContext.Request.Scheme; 
                 _trace.RequestMethod = httpContext.Request.Method;
                 _trace.RequestUri = httpContext.Request.Path;
-
-                if (httpContext.Response.StatusCode < 500)
-                {
-                    _trace.Type = "Regular"; // Regular Trace
-                }
-                else
-                {
-                    _trace.Type = "Error"; // Server Sider Error
-                }
-
-
-                _trace.RequestContent = "Request Content Goes here";
-                _trace.ResponseContent = "Response Content Goes here";
+                _trace.RequestHost = httpContext.Request.Host.ToString();
+                _trace.Type = httpContext.Response.StatusCode < 500 ? "Regular":"Error";
 
                 _repository.SaveAsync(_trace);// Should await be used ?
 
             }
 
-            else if(httpContext.Request.Path == "/trace") //Request Trace Logs --> Configurable  Endpoint
+            else if(httpContext.Request.Path == "/trace") //Request Trace Logs --> Configurable 
             {
-
                 int pageSize, pageNumber, recordsToSkip;
                 var pageSizeStr = httpContext.Request.Query["size"].ToString();
                 var pageNumberStr = httpContext.Request.Query["page"].ToString();
@@ -85,7 +84,6 @@ namespace CallTracerLibrary.Middlewares
                 int.TryParse(pageNumberStr, out pageNumber);
                 pageSize = pageSize == 0 ? pageSize = _defaultPageSize : pageSize;
                 recordsToSkip = pageSize * pageNumber;
-
 
                 var asyncDocuments = await _repository.GetAll();
                 var asyncDocumentsPaged = asyncDocuments.Skip(recordsToSkip).Take(pageSize);
@@ -99,31 +97,45 @@ namespace CallTracerLibrary.Middlewares
             {
                 string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 string filePath = System.IO.Path.Combine(currentDirectory,"FrontEnd","templete.html"); 
-
                 string readContents;
                 using (StreamReader streamReader = new StreamReader(filePath, Encoding.UTF8))
                 {
                     readContents = streamReader.ReadToEnd();
                 }
-
                 httpContext.Response.ContentType = "text/html";
                 await httpContext.Response.WriteAsync(readContents);
             }
         }
+
+        private async Task<string> FormatRequest(HttpRequest request)
+        {
+            request.EnableRewind();
+            var body = request.Body;
+            var buffer = new byte[Convert.ToInt32(request.ContentLength)];
+            await request.Body.ReadAsync(buffer, 0, buffer.Length);
+            var bodyAsText = Encoding.UTF8.GetString(buffer);
+            body.Seek(0, SeekOrigin.Begin); //Extra
+            request.Body = body;
+            if (bodyAsText.Length == 0)
+            {
+                return "RequestBody=Empty";
+            }
+            else
+            {
+                return $"RequestBody={bodyAsText}";
+            }
+        }
+
+        private async Task<string> FormatResponse(HttpResponse response)
+        {  
+            response.Body.Seek(0, SeekOrigin.Begin);
+            var text = await new StreamReader(response.Body).ReadToEndAsync();
+            response.Body.Seek(0, SeekOrigin.Begin);
+            return $"Response:{text}";
+        }
+
     }
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     // Extension method used to add the middleware to the HTTP request pipeline.
     public static class TracingMiddlewareExtensions
     {
