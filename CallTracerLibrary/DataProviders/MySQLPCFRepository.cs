@@ -19,11 +19,13 @@ namespace CallTracerLibrary.DataProviders
         {            
             _serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
             _db = _serviceScope.ServiceProvider.GetService<TraceMetadataContext>();
-            if (_db.Database.EnsureCreated() == false)
+            if (_db.Database.EnsureCreated() == true)
             {
                 RelationalDatabaseCreator databaseCreator = (RelationalDatabaseCreator)_db.Database.GetService<IDatabaseCreator>();
-                databaseCreator.CreateTables();
+
+               
             } 
+            
         }
 
         public static void InitializeMyContexts(IServiceProvider serviceProvider)
@@ -42,7 +44,7 @@ namespace CallTracerLibrary.DataProviders
             {
                 List<TraceMetadata> list = new List<TraceMetadata>();
                 var result = context.CallTraces;
-
+               
                 foreach (var trace in result)
                 {
                     list.Add(trace);
@@ -59,8 +61,7 @@ namespace CallTracerLibrary.DataProviders
 
         public Task SaveAsync(TraceMetadata value)
         {
-            _counter++;
-            value.Id = _counter;
+           
             _db.CallTraces.Add(value);
             return  _db.SaveChangesAsync();
         }

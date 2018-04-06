@@ -40,7 +40,7 @@
 
         function onButtonClick() {
             var pageSize = document.getElementById("pageSize").value;
-            var pageNumber = document.getElementById("pageNumber").value - 1;
+            var pageNumber = document.getElementById("pageNumber").value - 1;//
             requestURL = 'https://CallTracerUIMySQLSink.cfapps.pcf1.vc1.pcf.dell.com/trace'; //Fix this hard coding plus will jQ work from CDN when offline http://localhost:57916/trace
             var postString = '?page=' + pageNumber + "&size=" + pageSize;
             requestURL = requestURL + postString;
@@ -64,9 +64,9 @@
             $("#tracetable").find("tr:not(:first)").remove(); //jQ
             for (var i = 0; i < jsonObj.length; i++) {
                 var j = 0
-                //Create Row
+                // Create Row.
                 var row = table.insertRow(i + 1);
-                //Populate Columns
+                // Populate Columns.
                 var _id = row.insertCell(j++).innerHTML = jsonObj[i].Id;
                 var _type = row.insertCell(j++).innerHTML = jsonObj[i].Type;
                 var _requestContent = row.insertCell(j++).innerHTML = jsonObj[i].RequestContent;
