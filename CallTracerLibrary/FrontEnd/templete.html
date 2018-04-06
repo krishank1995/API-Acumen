@@ -41,7 +41,7 @@
         function onButtonClick() {
             var pageSize = document.getElementById("pageSize").value;
             var pageNumber = document.getElementById("pageNumber").value - 1;
-            requestURL = 'http://localhost:62150/trace'; //Fix this hard coding plus will jQ work from CDN when offline
+            requestURL = 'https://CallTracerUIMySQLSink.cfapps.pcf1.vc1.pcf.dell.com/trace'; //Fix this hard coding plus will jQ work from CDN when offline http://localhost:57916/trace
             var postString = '?page=' + pageNumber + "&size=" + pageSize;
             requestURL = requestURL + postString;
             requestTraces();

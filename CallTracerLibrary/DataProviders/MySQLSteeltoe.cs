@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -13,13 +10,13 @@ namespace CallTracerLibrary.DataProviders
 {
     public class MySQLSteeltoe
     {
-
-        public static void InitializeMyContexts(IServiceProvider serviceProvider) //internal static void
+        public static void InitializeMyContexts(IServiceProvider serviceProvider) 
         {
             if (serviceProvider == null)
             {
                 throw new ArgumentNullException("serviceProvider");
             }
+
             using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 Console.WriteLine("Ensuring database has been created...");
@@ -31,6 +28,7 @@ namespace CallTracerLibrary.DataProviders
                     databaseCreator.CreateTables();
                 }
             }
+
             InitializeContext(serviceProvider);
         }
 
@@ -39,7 +37,8 @@ namespace CallTracerLibrary.DataProviders
             using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 var db = serviceScope.ServiceProvider.GetService<TraceMetadataContext>();
-                if (db.CallTrace.Any())
+
+                if (db.CallTraces.Any())
                 {
                     return;
                 }

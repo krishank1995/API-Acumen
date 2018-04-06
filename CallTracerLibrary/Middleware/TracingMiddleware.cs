@@ -13,7 +13,7 @@ using MongoDB.Driver;
 
 namespace CallTracerLibrary.Middlewares
 {
-    // You may need to install the Microsoft.AspNetCore.Http.Abstractions package into your project
+    // You may need to install the Microsoft.AspNetCore.Http.Abstractions package into your project.
     public class TracingMiddleware
     {
         private Stopwatch _timeKeeper;
@@ -36,8 +36,6 @@ namespace CallTracerLibrary.Middlewares
                 _trace.ResponseContentType = httpContext.Response.ContentType;
                 _trace.RequestTimestamp = DateTime.Now;
                 _timeKeeper = Stopwatch.StartNew();
-                //await _next(httpContext); 
-                //_timeKeeper.Stop(); 
 
                 #region Retrieve Request-Responce Content 
                 _trace.RequestContent = await FormatRequest(httpContext.Request);
@@ -47,7 +45,7 @@ namespace CallTracerLibrary.Middlewares
                         httpContext.Response.Body = responseBody;
                         await _next(httpContext); 
                         _timeKeeper.Stop(); 
-                        if(httpContext.Response.StatusCode!=204 && (httpContext.Response.ContentType== "application/json; charset=utf-8")) //Add XML
+                        if(httpContext.Response.StatusCode!=204 && (httpContext.Response.ContentType== "application/json; charset=utf-8")) 
                         {
                             _trace.ResponseContent =  await FormatResponse(httpContext.Response);
                             _trace.ResponseContentType = httpContext.Response.ContentType;
@@ -70,12 +68,10 @@ namespace CallTracerLibrary.Middlewares
                 _trace.RequestUri = httpContext.Request.Path;
                 _trace.RequestHost = httpContext.Request.Host.ToString();
                 _trace.Type = httpContext.Response.StatusCode < 500 ? "Regular":"Error";
-
-                _repository.SaveAsync(_trace);// Should await be used ?
-
+                _repository.SaveAsync(_trace);
             }
-
-            else if(httpContext.Request.Path == "/trace") //Request Trace Logs --> Configurable 
+            // Request Trace Logs should be Configurable .
+            else if (httpContext.Request.Path == "/trace") 
             {
                 int pageSize, pageNumber, recordsToSkip;
                 var pageSizeStr = httpContext.Request.Query["size"].ToString();
@@ -88,20 +84,21 @@ namespace CallTracerLibrary.Middlewares
                 var asyncDocuments = await _repository.GetAll();
                 var asyncDocumentsPaged = asyncDocuments.Skip(recordsToSkip).Take(pageSize);
                 var json = Newtonsoft.Json.JsonConvert.SerializeObject(asyncDocumentsPaged);
-
                 httpContext.Response.ContentType = "Application/json";
                 await httpContext.Response.WriteAsync(json);
             }
-
-            else if(httpContext.Request.Path == "/ui") //UI --> Endpoint should be configurable
+            // UI --> Endpoint should be Configurable.
+            else if (httpContext.Request.Path == "/ui") 
             {
                 string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 string filePath = System.IO.Path.Combine(currentDirectory,"FrontEnd","templete.html"); 
                 string readContents;
+
                 using (StreamReader streamReader = new StreamReader(filePath, Encoding.UTF8))
                 {
                     readContents = streamReader.ReadToEnd();
                 }
+
                 httpContext.Response.ContentType = "text/html";
                 await httpContext.Response.WriteAsync(readContents);
             }
@@ -114,8 +111,9 @@ namespace CallTracerLibrary.Middlewares
             var buffer = new byte[Convert.ToInt32(request.ContentLength)];
             await request.Body.ReadAsync(buffer, 0, buffer.Length);
             var bodyAsText = Encoding.UTF8.GetString(buffer);
-            body.Seek(0, SeekOrigin.Begin); //Extra
+            body.Seek(0, SeekOrigin.Begin);
             request.Body = body;
+
             if (bodyAsText.Length == 0)
             {
                 return "RequestBody=Empty";

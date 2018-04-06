@@ -1,12 +1,9 @@
 ﻿using CallTracerLibrary.Models;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CallTracerLibrary.DataProviders
@@ -19,31 +16,20 @@ namespace CallTracerLibrary.DataProviders
         private static TraceMetadataContext _db;
 
        public MySQLPCFRepository(IServiceProvider serviceProvider)
-        {
-            
+        {            
             _serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
             _db = _serviceScope.ServiceProvider.GetService<TraceMetadataContext>();
-
-            
-            if (_db.Database.EnsureCreated()==false)
+            if (_db.Database.EnsureCreated() == false)
             {
                 RelationalDatabaseCreator databaseCreator = (RelationalDatabaseCreator)_db.Database.GetService<IDatabaseCreator>();
                 databaseCreator.CreateTables();
-            }
-            //InitializeContext(serviceProvider);
+            } 
         }
-
 
         public static void InitializeMyContexts(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }
-
-        //private static void AddData<TData>(DbContext db, object item) where TData : class
-        //{
-        //    db.Entry(item).State = EntityState.Added;
-        //}
-
 
         public Task<TraceMetadata> Get(int id)
         {
@@ -55,7 +41,7 @@ namespace CallTracerLibrary.DataProviders
             using (var context = _db)
             {
                 List<TraceMetadata> list = new List<TraceMetadata>();
-                var result = context.CallTrace;
+                var result = context.CallTraces;
 
                 foreach (var trace in result)
                 {
@@ -75,9 +61,8 @@ namespace CallTracerLibrary.DataProviders
         {
             _counter++;
             value.Id = _counter;
-            _db.CallTrace.Add(value);
-            // _db.Entry(value).State = EntityState.Added;
-             return  _db.SaveChangesAsync();
+            _db.CallTraces.Add(value);
+            return  _db.SaveChangesAsync();
         }
     }
 }

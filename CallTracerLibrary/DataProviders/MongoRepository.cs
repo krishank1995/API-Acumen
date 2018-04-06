@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CallTracerLibrary.Models;
@@ -10,28 +9,26 @@ namespace CallTracerLibrary.DataProviders
 {
     public class MongoRepository : IRepository<TraceMetadata,int>
     {
-        private static MongoClient client = new MongoClient("mongodb://AUSSWGIICACPE01.aus.amer.dell.com:27017"); //("mongodb://pendwgiiap02.pen.apac.dell.com:27017");
-        private static IMongoDatabase _database = client.GetDatabase("CallTracer");
-        private static IMongoCollection<TraceMetadata> collection  =_database.GetCollection<TraceMetadata>("TrackingHistoryNew");
+        // Asia= ("mongodb://pendwgiiap02.pen.apac.dell.com:27017") US=("mongodb://AUSSWGIICACPE01.aus.amer.dell.com:27017").
+        private static MongoClient _client = new MongoClient("mongodb://AUSSWGIICACPE01.aus.amer.dell.com:27017"); 
+        private static IMongoDatabase _database = _client.GetDatabase("CallTracer");
+        private static IMongoCollection<TraceMetadata> _collection  =_database.GetCollection<TraceMetadata>("TrackingHistoryNew");
       
         public async Task<TraceMetadata> Get(int id)
         {
-            //var collection = _database.GetCollection<TraceMetadata>("TrackingHistoryNew");
-            var results = collection.Find(x => x.Id == id).ToList();
+            var results = _collection.Find(x => x.Id == id).ToList();
             return results.FirstOrDefault();
         }
             
-        public async Task<IEnumerable<TraceMetadata>> GetN(int n) //int pageSize, int pageNumber
+        public async Task<IEnumerable<TraceMetadata>> GetN(int n)
         {
-            var documents = collection.Find(Builders<TraceMetadata>.Filter.Empty).Limit(n).ToList();
+            var documents = _collection.Find(Builders<TraceMetadata>.Filter.Empty).Limit(n).ToList();
             return documents;
         }
 
         public async Task<IEnumerable<TraceMetadata>> GetAll() 
         {
-
-            var documents = collection.Find(Builders<TraceMetadata>.Filter.Empty).ToList();
-
+            var documents = _collection.Find(Builders<TraceMetadata>.Filter.Empty).ToList();
             return documents;
         }
 
@@ -41,14 +38,7 @@ namespace CallTracerLibrary.DataProviders
             trace.Id = (int)collection.Count(new BsonDocument(), null) + 1;
             return collection.InsertOneAsync(trace);
         }
-
-
-
-     
-
     }
-
-
 }
 
 
