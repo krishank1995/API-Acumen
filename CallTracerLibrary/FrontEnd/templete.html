@@ -40,9 +40,49 @@
 
         function onButtonClick() {
             var pageSize = document.getElementById("pageSize").value;
-            var pageNumber = document.getElementById("pageNumber").value - 1;//
-            requestURL = 'https://CallTracerUIMySQLSink.cfapps.pcf1.vc1.pcf.dell.com/trace'; //Fix this hard coding plus will jQ work from CDN when offline http://localhost:57916/trace
+            var pageNumber = document.getElementById("pageNumber").value - 1;
+            var hostName = document.getElementById("hostName").value;
+            var responseCode = document.getElementById("responseCode").value;
+            var fromTimestamp = document.getElementById("fromTimestamp").value;
+            var toTimestamp = document.getElementById("toTimestamp").value;
+
+            var e = document.getElementById("reqMethod");
+            var methodType = e.options[e.selectedIndex].text;
+
+            e = document.getElementById("traceType");
+            var traceType = e.options[e.selectedIndex].text;
+            
+
+            requestURL = 'http://localhost:62150/trace'; //Fix this hard coding plus will jQ work from CDN when offline http://localhost:57916/trace
             var postString = '?page=' + pageNumber + "&size=" + pageSize;
+
+            // Method Filter
+            if (methodType !="ALL") {
+                postString = postString + "&method=" + methodType;
+            }
+
+            //Type Filter
+            if (traceType != "ALL") {
+                postString = postString + "&type=" + traceType;
+            }
+
+            //Time Filter
+            if (hostName.length != 0 && fromTimestamp.length != 0) {
+                postString = postString + "&starttimestamp=" + fromTimestamp;
+                postString = postString + "&stoptimestamp=" + toTimestamp;
+            }
+
+            //Response Code Filter
+            if (responseCode.length != 0) {
+                postString = postString + "&code=" + responseCode;
+            }          
+
+            //Host Filter
+            if (hostName.length != 0) {
+                postString = postString + "&host=" + hostName;
+            }       
+
+            
             requestURL = requestURL + postString;
             requestTraces();
         }
@@ -73,7 +113,6 @@
                 var _requestContentType = row.insertCell(j++).innerHTML = jsonObj[i].RequestContentType;
                 var _requestHost = row.insertCell(j++).innerHTML = jsonObj[i].RequestHost;
                 var _requestUri = row.insertCell(j++).innerHTML = jsonObj[i].RequestUri;
-                var _requestScheme = row.insertCell(j++).innerHTML = jsonObj[i].RequestScheme;
                 var _requestMethod = row.insertCell(j++).innerHTML = jsonObj[i].RequestMethod;
                 var _requestTimestamp = row.insertCell(j++).innerHTML = jsonObj[i].RequestTimestamp;
                 var _responseContent = row.insertCell(j++).innerHTML = jsonObj[i].ResponseContent;
@@ -92,9 +131,42 @@
     <header></header>
 
     <options>
-        <input type="text" id="pageSize" value="Page Size">
-        <input type="text" id="pageNumber" value="Page Number">
+
+
+
+        Page-Size:<input type="text" id="pageSize" value="20">
+        Page-Number:<input type="text" id="pageNumber" value="1">
+        Host-Name:<input type="text" id="hostName" value="">
+        Response-Code:<input type="text" id="responseCode" value="">
+        From-Timestamp:<input type="text" id="fromTimestamp" value="">
+        To-Timestamp:<input type="text" id="toTimestamp" value="">
+        <br/>
+
+        <label>Request Method</label>
+        <select id="reqMethod">
+            <option value="ALL">ALL</option>
+            <option value="GET">GET</option>
+            <option value="POST">POST</option>
+            <option value="PUT">PUT</option>
+            <option value="PATCH">PATCH</option>
+            <option value="DELETE">DELETE</option>
+            <option value="OPTIONS">OPTIONS</option>
+        </select>
+
+        <label>Trace Type</label>
+        <select id="traceType">
+            <option value="ALL">ALL</option>
+            <option value="GET">REGULAR</option>
+            <option value="POST">ERROR</option>
+            <option value="PUT">WARNING</option>
+        </select>
+
+
+
         <button onclick="onButtonClick()">Go</button>
+
+
+
         <br />
     </options>
 
@@ -107,7 +179,6 @@
                 <th>Request Content Type</th>
                 <th>Request Host</th>
                 <th>Request Uri</th>
-                <th>Request Scheme</th>
                 <th>Request Method</th>
                 <th>Request Timestamp</th>
                 <th>Response Content</th>

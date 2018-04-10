@@ -72,7 +72,7 @@ namespace SampleWebAPI
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Random");
             });
             //  app.TraceEndPoint();
-            app.UseMiddleware<TracingMiddleware>();
+            
            
 
             if (env.IsDevelopment())
@@ -102,7 +102,8 @@ namespace SampleWebAPI
             {
                 //
             }
-            
+
+            app.UseMiddleware<TracingMiddleware>();
             app.UseMvc();
            
 

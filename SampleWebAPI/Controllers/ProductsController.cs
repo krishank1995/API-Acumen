@@ -19,7 +19,7 @@ namespace SampleWebAPI.Controllers
 
         //Object for accessing  data provider
         private readonly IProductsProvider _productsProvider;
-        public ProductsController(IProductsProvider productsProvider) //Constuctor for Controller
+        public ProductsController(IProductsProvider productsProvider) //Constuctor for Controller, provider through DI
         {
             _productsProvider = productsProvider;
 
@@ -67,8 +67,8 @@ namespace SampleWebAPI.Controllers
         [HttpGet]
         public IActionResult GetAllProducts()
         {
-                //throw new Exception("Just a test");
-                return Ok(_productsProvider.GetAllProducts());
+                throw new Exception("Just a test");
+                //return Ok(_productsProvider.GetAllProducts());
         }
 
         //Return a specific Product matched by ID

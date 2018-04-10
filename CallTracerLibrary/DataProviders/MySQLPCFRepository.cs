@@ -19,13 +19,12 @@ namespace CallTracerLibrary.DataProviders
         {            
             _serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
             _db = _serviceScope.ServiceProvider.GetService<TraceMetadataContext>();
+           
             if (_db.Database.EnsureCreated() == true)
             {
                 RelationalDatabaseCreator databaseCreator = (RelationalDatabaseCreator)_db.Database.GetService<IDatabaseCreator>();
+            }
 
-               
-            } 
-            
         }
 
         public static void InitializeMyContexts(IServiceProvider serviceProvider)

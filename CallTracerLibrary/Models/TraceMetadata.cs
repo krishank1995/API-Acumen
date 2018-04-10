@@ -14,23 +14,22 @@ namespace CallTracerLibrary.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; } 
+        public int Id { get; set; }
         public string Type { get; set; }  
 
         public string RequestContent { get; set; }
         public string RequestContentType { get; set; }
         public string RequestHost { get; set; }
         public string RequestUri { get; set; }  
-        public string RequestScheme { get; set; }
         public string RequestMethod { get; set; }   
         [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
-        public DateTime? RequestTimestamp { get; set; } 
+        public DateTime RequestTimestamp { get; set; } 
 
         public string ResponseContent { get; set; }
         public string ResponseContentType { get; set; }
         public int ResponseStatusCode { get; set; } 
         [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
-        public DateTime? ResponseTimestamp { get; set; } 
+        public DateTime ResponseTimestamp { get; set; } 
         public double ResponseTimeMs { get; set; } 
 
     }

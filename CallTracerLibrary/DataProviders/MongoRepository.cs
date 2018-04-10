@@ -12,7 +12,7 @@ namespace CallTracerLibrary.DataProviders
         // Asia= ("mongodb://pendwgiiap02.pen.apac.dell.com:27017") US=("mongodb://AUSSWGIICACPE01.aus.amer.dell.com:27017").
         private static MongoClient _client = new MongoClient("mongodb://AUSSWGIICACPE01.aus.amer.dell.com:27017"); 
         private static IMongoDatabase _database = _client.GetDatabase("CallTracer");
-        private static IMongoCollection<TraceMetadata> _collection  =_database.GetCollection<TraceMetadata>("TrackingHistoryNew");
+        private static IMongoCollection<TraceMetadata> _collection  =_database.GetCollection<TraceMetadata>("TraceHistory");
       
         public async Task<TraceMetadata> Get(int id)
         {
@@ -34,9 +34,8 @@ namespace CallTracerLibrary.DataProviders
 
         public Task SaveAsync(TraceMetadata trace)
         {
-            var collection = _database.GetCollection<TraceMetadata>("TrackingHistoryNew");
-            trace.Id = (int)collection.Count(new BsonDocument(), null) + 1;
-            return collection.InsertOneAsync(trace);
+            trace.Id = (int)_collection.Count(new BsonDocument(), null) + 1;
+            return _collection.InsertOneAsync(trace);
         }
     }
 }
