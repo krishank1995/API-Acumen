@@ -72,8 +72,9 @@ namespace CallTracerLibrary.Middlewares
                         _timeKeeper.Stop();
                         MapMetadata(_trace, httpContext);
                         _trace.ResponseContent = ex.ToString();
-                        _trace.ResponseContentType = "Exception";
+                        _trace.ResponseContentType = "N/A";
                         _trace.ResponseStatusCode = 500;
+                        _trace.Type = "5xx";
                         _repository.SaveAsync(_trace);
                         httpContext.Response.Body = originalBodyStream;
                         throw;
@@ -131,6 +132,9 @@ namespace CallTracerLibrary.Middlewares
                 httpContext.Response.ContentType = "text/html";
                 await httpContext.Response.WriteAsync(readContents);
             }
+
+
+
         }
 
         private async Task<string> FormatRequest(HttpRequest request)
@@ -170,8 +174,10 @@ namespace CallTracerLibrary.Middlewares
             trace.RequestMethod = httpContext.Request.Method;
             trace.RequestUri = httpContext.Request.Path;
             trace.RequestHost = httpContext.Request.Host.ToString();
-            trace.Type = httpContext.Response.StatusCode < 500 ? "Regular" : "Error";
-           
+
+            var type =(int)httpContext.Response.StatusCode/100;
+            trace.Type = type.ToString()+"xx";
+
         }
 
         public IEnumerable<TraceMetadata> FilterTraces (IEnumerable<TraceMetadata> inputDocs,HttpContext httpContext)
@@ -221,6 +227,16 @@ namespace CallTracerLibrary.Middlewares
                 int.TryParse(httpContext.Request.Query["code"].ToString(), out int code);
                 inputDocs = from doc in inputDocs
                             where doc.ResponseStatusCode==code
+                            select doc;
+            }
+
+
+            //Request Uri Filter
+            if (httpContext.IsFilterApplicable("uri"))
+            {
+                var reqUri = httpContext.Request.Query["uri"].ToString();
+                inputDocs = from doc in inputDocs
+                            where string.Compare(doc.RequestUri, reqUri, StringComparison.OrdinalIgnoreCase) == 0
                             select doc;
             }
 
