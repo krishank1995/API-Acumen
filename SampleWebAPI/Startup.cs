@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CallTracerLibrary.DataProviders;
+﻿using CallTracerLibrary.DataProviders;
 
 using CallTracerLibrary.Middlewares;
 using CallTracerLibrary.Models;
@@ -10,12 +6,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Formatters;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SampleWebAPI.DataProviders;
 
-//using Steeltoe.CloudFoundry.Connector.MySql;
+
 using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
 
 namespace SampleWebAPI
@@ -53,7 +48,7 @@ namespace SampleWebAPI
             services.AddSingleton<IProductsProvider, ProductsProviderMongo>();
 
           // services.AddSingleton<IRepository<TraceMetadata,int>, MySQLRepository>();    //InMemory,Mongo,MySQL --> Availible Repositoreis 
-              services.AddSingleton<IRepository<TraceMetadata, int>, MongoRepository>();
+              services.AddSingleton<IRepository<TraceMetadata,AnalysisMetadata, int>, MongoRepository>();
             // services.AddSingleton<IRepository<TraceMetadata, int>, InMemoryRepository>();
 
             services.AddSwaggerGen(c =>

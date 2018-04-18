@@ -20,10 +20,10 @@ namespace CallTracerLibrary.Middlewares
     {
         private Stopwatch _timeKeeper;
         private readonly RequestDelegate _next;
-        private IRepository<TraceMetadata, int> _repository;
+        private IRepository<TraceMetadata,AnalysisMetadata, int> _repository;
         private static int _defaultPageSize = 20;
 
-        public TracingMiddleware(RequestDelegate next, IRepository<TraceMetadata, int> repository)
+        public TracingMiddleware(RequestDelegate next, IRepository<TraceMetadata,AnalysisMetadata, int> repository)
         {
             _repository = repository;
             _next = next;
@@ -32,7 +32,8 @@ namespace CallTracerLibrary.Middlewares
         public async Task Invoke(HttpContext httpContext)
         {
             TraceMetadata _trace = new TraceMetadata();
-            if (httpContext.Request.Path != "/trace" && httpContext.Request.Path != "/ui")
+            if (httpContext.Request.Path != "/trace" && httpContext.Request.Path != "/ui" && httpContext.Request.Path != "/analysis" 
+                && httpContext.Request.Path != "/traceanalysis" && httpContext.Request.Path != "/uiref")
             {
                 _trace.RequestContentType = httpContext.Request.ContentType;
                 _trace.ResponseContentType = httpContext.Response.ContentType;
@@ -81,60 +82,23 @@ namespace CallTracerLibrary.Middlewares
                     }
 
                 }
-
                 #endregion
-
-
             }
-           
-            
-            // Request Trace Logs should be Configurable .
+            // Configurable Endpoint.
             else if (httpContext.Request.Path == "/trace")
             {
-                IEnumerable<TraceMetadata> asyncDocumentsFiltered;
-                IEnumerable<TraceMetadata> asyncDocumentsPaged;
-                IEnumerable<TraceMetadata> asyncDocuments;
-
-                // Pagination Params
-                int pageSize, pageNumber, recordsToSkip;
-                var pageSizeStr = httpContext.Request.Query["size"].ToString();
-                var pageNumberStr = httpContext.Request.Query["page"].ToString();
-                int.TryParse(pageSizeStr, out pageSize);
-                int.TryParse(pageNumberStr, out pageNumber);
-                pageSize = pageSize == 0 ? pageSize = _defaultPageSize : pageSize;
-                recordsToSkip = pageSize * pageNumber;
-
-                // Get All documents.
-                asyncDocuments = await _repository.GetAll();
-
-                //Apply Filters
-                asyncDocumentsFiltered = FilterTraces(asyncDocuments,httpContext);
-
-                //Apply Pagination
-                asyncDocumentsPaged = asyncDocumentsFiltered.Skip(recordsToSkip).Take(pageSize);
-                var json = Newtonsoft.Json.JsonConvert.SerializeObject(asyncDocumentsPaged);
-                httpContext.Response.ContentType = "Application/json";
-                await httpContext.Response.WriteAsync(json);
+                await  Trace(httpContext);
             }
-
-            // UI --> Endpoint should be Configurable.
-            else if (httpContext.Request.Path == "/ui")
+            // Configurable Endpoint.
+            else if(httpContext.Request.Path == "/traceanalysis")
+            {   
+                        await TraceAnalysisAsync(httpContext);
+            }
+            // Configurable Endpoint.
+            else if (httpContext.Request.Path == "/ui" || httpContext.Request.Path == "/analysis" || httpContext.Request.Path == "/uiref")
             {
-                string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                string filePath = System.IO.Path.Combine(currentDirectory, "FrontEnd", "templete.html");
-                string readContents;
-
-                using (StreamReader streamReader = new StreamReader(filePath, Encoding.UTF8))
-                {
-                    readContents = streamReader.ReadToEnd();
-                }
-
-                httpContext.Response.ContentType = "text/html";
-                await httpContext.Response.WriteAsync(readContents);
+                await RenderFrontEnd(httpContext);
             }
-
-
-
         }
 
         private async Task<string> FormatRequest(HttpRequest request)
@@ -240,28 +204,87 @@ namespace CallTracerLibrary.Middlewares
                             select doc;
             }
 
+            //Request Uri Filter
+            if (httpContext.IsFilterApplicable("detail"))
+            {
+                inputDocs = from doc in inputDocs
+                            where string.Compare(doc.Type, "2xx", StringComparison.OrdinalIgnoreCase) !=0
+                            select doc;
+            }
+
             #endregion
 
             return inputDocs;
         }
 
-        public bool IsFilterApplicable (string key,HttpContext httpContext)
+        public async Task TraceAnalysisAsync(HttpContext httpContext)
         {
-            if(httpContext.Request.Query.ContainsKey(key))
+                DateTime.TryParse(httpContext.Request.Query["starttimestamp"].ToString(), out DateTime stamp1);
+                DateTime.TryParse(httpContext.Request.Query["stoptimestamp"].ToString(), out DateTime stamp2);
+                var docs = await _repository.TraceAnalysis(stamp1, stamp2);
+                var json = Newtonsoft.Json.JsonConvert.SerializeObject(docs);
+                httpContext.Response.ContentType = "Application/json";
+                await httpContext.Response.WriteAsync(json);
+
+        }
+
+        public async Task Trace(HttpContext httpContext)
+        {
+            IEnumerable<TraceMetadata> asyncDocumentsFiltered;
+            IEnumerable<TraceMetadata> asyncDocumentsPaged;
+            IEnumerable<TraceMetadata> asyncDocuments;
+
+            // Pagination Params
+            int pageSize, pageNumber, recordsToSkip;
+            var pageSizeStr = httpContext.Request.Query["size"].ToString();
+            var pageNumberStr = httpContext.Request.Query["page"].ToString();
+            int.TryParse(pageSizeStr, out pageSize);
+            int.TryParse(pageNumberStr, out pageNumber);
+            pageSize = pageSize == 0 ? pageSize = _defaultPageSize : pageSize;
+            recordsToSkip = pageSize * pageNumber;
+
+            // Get All documents.
+            asyncDocuments = await _repository.GetAll();
+
+            //Apply Filters
+            asyncDocumentsFiltered = FilterTraces(asyncDocuments, httpContext);
+
+            //Apply Pagination
+            asyncDocumentsPaged = asyncDocumentsFiltered.Skip(recordsToSkip).Take(pageSize);
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(asyncDocumentsPaged);
+            httpContext.Response.ContentType = "Application/json";
+            await httpContext.Response.WriteAsync(json);
+        }
+
+        public async Task RenderFrontEnd(HttpContext httpContext)
+        {
+            string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string filePath;
+            string readContents;
+
+            if(httpContext.Request.Path == "/ui")
             {
-                return true;
+                filePath = System.IO.Path.Combine(currentDirectory, "FrontEnd", "templete.html");
+            }
+           
+            else 
+            {
+                filePath = System.IO.Path.Combine(currentDirectory, "FrontEnd", "overview.html");
             }
 
-            return false;
-           
-        }
 
-        public void GenricLinq ()
-        {
-            //Expression<Func<TraceMetadata, bool>> whereClause = a => a.Type == traceType;
-            //var x = frSomeList.Where(whereClause);
-        }
 
+            using (StreamReader streamReader = new StreamReader(filePath, Encoding.UTF8))
+            {
+
+                readContents = streamReader.ReadToEnd();
+            }
+
+            // Replace APPNAME and DYNAMICPATH with actual values.
+            readContents = readContents.Replace("APPNAME", AppDomain.CurrentDomain.FriendlyName);
+            httpContext.Response.ContentType = "text/html";
+            await httpContext.Response.WriteAsync(readContents);
+        }
 
     }
 
@@ -279,8 +302,9 @@ namespace CallTracerLibrary.Middlewares
             {
                 return true;
             }
-
+            
             return false;
         }
+
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CallTracerLibrary.DataProviders
 {
-    public class MySQLRepository:IRepository<TraceMetadata,int>
+    public class MySQLRepository:IRepository<TraceMetadata,AnalysisMetadata,int>
 
     {
         public async Task<TraceMetadata> Get(int id)
@@ -58,6 +58,11 @@ namespace CallTracerLibrary.DataProviders
                 context.CallTraces.Add(value);
                 return context.SaveChangesAsync();
             }
+        }
+   
+        public Task<IEnumerable<AnalysisMetadata>> TraceAnalysis(DateTime stamp1,DateTime stamp2)
+        {
+            throw new NotImplementedException();
         }
     }
 }

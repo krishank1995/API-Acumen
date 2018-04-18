@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CallTracerLibrary.DataProviders
 {
-    public class MySQLPCFRepository : IRepository<TraceMetadata, int>
+    public class MySQLPCFRepository : IRepository<TraceMetadata,AnalysisMetadata, int>
     {
         private static int _counter;
         private static IServiceProvider _serviceProvider;
@@ -63,6 +63,11 @@ namespace CallTracerLibrary.DataProviders
            
             _db.CallTraces.Add(value);
             return  _db.SaveChangesAsync();
+        }
+
+        public Task<IEnumerable<AnalysisMetadata>> TraceAnalysis(DateTime stamp1,DateTime stamp2)
+        {
+            throw new NotImplementedException();
         }
     }
 }

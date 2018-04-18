@@ -1,7 +1,10 @@
 ﻿---
 applications:
-- name: Call-Tracer
+- name: CallTracerUIMiddlewareDisabled
+  
+ 
+
   env:
     ASPNETCORE_ENVIRONMENT: POCApps
-  services:
-   - myMySqlService
+    buildpack: dotnet_core_buildpack_203
+

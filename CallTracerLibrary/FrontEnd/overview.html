@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Traces Analysis</title>
+    <style>
+
+        h1 {
+            text-align: center;
+        }
+
+        #tracetable {
+            font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        #options {
+            font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        #tracetable td, #tracetable th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #tracetable tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #tracetable tr:hover {
+            background-color: #ddd;
+        }
+
+        #tracetable th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+        var header = document.querySelector('header');
+        var section = document.querySelector('section');
+        var requestURL;
+        var fromTimestamp;
+        var toTimestamp;
+        function onButtonClick() {
+            fromTimestamp = document.getElementById("fromTimestamp").value;
+            toTimestamp = document.getElementById("toTimestamp").value;
+            requestURL = '/traceanalysis';
+            postString = "?starttimestamp=" + fromTimestamp;
+            postString = postString + "&stoptimestamp=" + toTimestamp;
+            requestURL = requestURL + postString;
+            requestTraces();
+        }
+
+        function requestTraces() {
+            var request = new XMLHttpRequest();
+            request.open('GET', requestURL);
+            request.responseType = 'json';
+            request.send();
+            request.onload = function () {
+                var traces = request.response;
+                console.log(traces);
+                showTracesTable(traces);
+            }
+        }
+
+        function showTracesTable(jsonObj) {
+            var table = document.getElementById("tracetable");
+            $("#tracetable").find("tr:not(:first)").remove(); //jQ
+            for (var i = 0; i < jsonObj.length; i++) {
+                var j = 0
+                // Create Row.
+                var row = table.insertRow(i + 1);
+                // Populate Columns.
+                var _id = row.insertCell(j++).innerHTML = i + 1;
+                var _resource = row.insertCell(j++).innerHTML = jsonObj[i].Resource;
+                var _requestCount = row.insertCell(j++).innerHTML = jsonObj[i].RequestCount;
+                var _successCount = row.insertCell(j++).innerHTML = jsonObj[i].SuccessCount;
+                var _serverFailureCount = row.insertCell(j++).innerHTML = jsonObj[i].ServerFailureCount;
+                var _clientFailureCount = row.insertCell(j++).innerHTML = jsonObj[i].ClientFailureCount;
+                var _successAverageResponseTime = row.insertCell(j++).innerHTML = jsonObj[i].SuccessAverageResponseTime;
+                var _clientFailureAverageResponseTime = row.insertCell(j++).innerHTML = jsonObj[i].ClientFailureAverageResponseTime;
+                var _serverFailureAverageResponseTime = row.insertCell(j++).innerHTML = jsonObj[i].ServerFailureAverageResponseTime;
+                row.insertCell(j++).innerHTML = '<a href="/ui?detail&size=20&uri=' + _resource + '&starttimestamp=' + fromTimestamp
+                    + '&stoptimestamp=' + toTimestamp +
+                    '" target="_blank"> <div style="height:100%;width:100%">Details</div></a>';
+            }
+        }
+    </script>
+    <noscript>Sorry, your browser does not support JavaScript!</noscript>
+</head>
+
+<body>
+    <h1> APPNAME </h1>
+
+    <options>
+        <br />Request Timestamp<br />
+        From:<input type="date" id="fromTimestamp" value="2018-04-01"><br />
+        Till:<input type="date" id="toTimestamp" value="2018-04-10">
+        <button onclick="onButtonClick()">Search</button>
+
+        <br />
+        <br />
+    </options>
+
+    <section>
+        <table id="tracetable">
+            <tr>
+                <th>Id</th>
+                <th>Resource</th>
+                <th>Request Count</th>
+                <th>Success Count</th>
+                <th>Server Failure Count</th>
+                <th>Client Failure Count</th>
+                <th>Success Average Response Time</th>
+                <th> ClientFailureAverageResponseTime</th>
+                <th>ServerFailureAverageResponseTime</th>
+                <th> Details </th>
+            </tr>
+        </table>
+    </section>
+
+</body>
+
+</html>

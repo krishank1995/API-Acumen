@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CallTracerLibrary.Models;
 
 namespace CallTracerLibrary.DataProviders
 {
-    public  class InMemoryRepository : IRepository<TraceMetadata, int>
+    public  class InMemoryRepository : IRepository<TraceMetadata,AnalysisMetadata, int>
     {
         private static List<TraceMetadata> _list =  new List<TraceMetadata>();
 
@@ -29,6 +30,11 @@ namespace CallTracerLibrary.DataProviders
              trace.Id = _list.Count() + 1;
             _list.Add(trace);
             return (null);  
+        }
+
+        public Task<IEnumerable<AnalysisMetadata>> TraceAnalysis (DateTime stamp1,DateTime stamp2)
+        {
+            throw new NotImplementedException();
         }
     }
 }

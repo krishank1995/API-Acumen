@@ -5,6 +5,11 @@
     <meta charset="utf-8">
     <title>Call Traces</title>
     <style>
+
+        h1 {
+            text-align: center;
+        }
+
         #tracetable {
             font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
             border-collapse: collapse;
@@ -42,15 +47,32 @@
         var header = document.querySelector('header');
         var section = document.querySelector('section');
         var requestURL;
+        var url_string = window.location.href;
+        
+
+        function onLoad() {
+            var e = document.getElementById("pageSize");
+            var pageSize = e.options[e.selectedIndex].value;
+            requestURL = url_string;
+            requestURL = requestURL.replace("/ui", "/trace");
+            requestURL = requestURL.replace("size=20", "size=" + pageSize);
+            requestTraces();
+
+        }
+
+       
 
         function onButtonClick() {
-            var pageSize = document.getElementById("pageSize").value;
+            var e = document.getElementById("pageSize");
+            var pageSize = e.options[e.selectedIndex].value;
+
             var pageNumber = document.getElementById("pageNumber").value - 1;
             var hostName = document.getElementById("hostName").value;
             var responseCode = document.getElementById("responseCode").value;
             var fromTimestamp = document.getElementById("fromTimestamp").value;
             var toTimestamp = document.getElementById("toTimestamp").value;
             var reqUri = document.getElementById("reqUri").value;
+
 
             var e = document.getElementById("reqMethod");
             var methodType = e.options[e.selectedIndex].text;
@@ -60,7 +82,7 @@
 
             
 
-            requestURL = 'http://localhost:62150/trace'; //Fix this hard coding plus will jQ work from CDN when offline http://localhost:57916/trace
+            requestURL = '/trace'; 
             var postString = '?page=' + pageNumber + "&size=" + pageSize;
 
             // Method Filter
@@ -139,14 +161,25 @@
     <noscript>Sorry, your browser does not support JavaScript!</noscript>
 </head>
 
-<body>
-    <header></header>
+<body onload="onLoad()">
+    <h1> APPNAME </h1>
 
     <options>
-        Page-Size:<input type="text" id="pageSize" value="20">
-        Page-Number:<input type="text" id="pageNumber" value="1">
-        <button onclick="onButtonClick()">Go</button>
-        <br /> <br /><br />
+
+        <label>Page-Size</label>
+        <select id="pageSize">
+            <option value="20">20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+            <option value="500">500</option>
+            <option value="1000">1000</option>
+        </select>
+        Page-Number:<input type="number" id="pageNumber" value="1">
+        <button onclick="onButtonClick()">Search</button>
+        <button onclick="onLoad()">Pagination Refresh</button>
+        <br />
+        <br />
     </options>
 
     <section>

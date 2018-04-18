@@ -42,6 +42,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="FrontEnd\overview.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="FrontEnd\templete.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
