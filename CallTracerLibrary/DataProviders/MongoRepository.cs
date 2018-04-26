@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CallTracerLibrary.Middlewares;
 using CallTracerLibrary.Models;
+using Microsoft.AspNetCore.Http;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -47,21 +49,18 @@ namespace CallTracerLibrary.DataProviders
                  .Select(x => x.RequestUri.ToLower())
                  .Distinct();
 
-
             foreach (var result in query)
             {
                 uriList.Add(result);
             }
-
             uriList.Sort();
-
             foreach (var uri in uriList)
             {
                 AnalysisMetadata metadata = new AnalysisMetadata();
                 metadata.Resource = uri;
 
                 metadata.RequestCount = _collection.AsQueryable<TraceMetadata>().Where(x => x.RequestTimestamp > start && x.RequestTimestamp < stop)
-                 .Where(x => x.RequestUri.ToLower() == uri).    Count();
+                 .Where(x => x.RequestUri.ToLower() == uri).Count();
 
                 metadata.SuccessCount = _collection.AsQueryable<TraceMetadata>().Where(x => x.RequestTimestamp > start && x.RequestTimestamp < stop)
                  .Where(x => x.RequestUri.ToLower() == uri).Where(x=>x.Type=="2xx").Count();
@@ -81,14 +80,14 @@ namespace CallTracerLibrary.DataProviders
                 metadata.ServerFailureAverageResponseTime = metadata.ServerFailureCount > 0 ? _collection.AsQueryable<TraceMetadata>().Where(x => x.RequestTimestamp > start && x.RequestTimestamp < stop)
                   .Where(x => x.RequestUri.ToLower() == uri).Where(x => x.Type == "5xx").Average(x => x.ResponseTimeMs) : 0;
 
-             
-
                 analysisLlist.Add(metadata);
             }
 
 
             return analysisLlist;
         }
+
+        
 
         
 

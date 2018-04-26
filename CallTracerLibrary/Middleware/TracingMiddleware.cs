@@ -33,7 +33,7 @@ namespace CallTracerLibrary.Middlewares
         {
             TraceMetadata _trace = new TraceMetadata();
             if (httpContext.Request.Path != "/trace" && httpContext.Request.Path != "/ui" && httpContext.Request.Path != "/analysis" 
-                && httpContext.Request.Path != "/traceanalysis" && httpContext.Request.Path != "/uiref")
+                && httpContext.Request.Path != "/traceanalysis")
             {
                 _trace.RequestContentType = httpContext.Request.ContentType;
                 _trace.ResponseContentType = httpContext.Response.ContentType;
@@ -84,18 +84,19 @@ namespace CallTracerLibrary.Middlewares
                 }
                 #endregion
             }
-            // Configurable Endpoint.
+
+            // Configurable Data Endpoint.
             else if (httpContext.Request.Path == "/trace")
             {
                 await  Trace(httpContext);
             }
-            // Configurable Endpoint.
+            // Configurable Data Analysis Endpoint.
             else if(httpContext.Request.Path == "/traceanalysis")
             {   
                         await TraceAnalysisAsync(httpContext);
             }
-            // Configurable Endpoint.
-            else if (httpContext.Request.Path == "/ui" || httpContext.Request.Path == "/analysis" || httpContext.Request.Path == "/uiref")
+            // Configurable UI and Analysis End Points.
+            else if (httpContext.Request.Path == "/ui" || httpContext.Request.Path == "/analysis")
             {
                 await RenderFrontEnd(httpContext);
             }
@@ -144,7 +145,7 @@ namespace CallTracerLibrary.Middlewares
 
         }
 
-        public IEnumerable<TraceMetadata> FilterTraces (IEnumerable<TraceMetadata> inputDocs,HttpContext httpContext)
+        public IEnumerable<TraceMetadata> FilterTraces(IEnumerable<TraceMetadata> inputDocs, HttpContext httpContext)
         {
             #region filters
 
@@ -163,8 +164,8 @@ namespace CallTracerLibrary.Middlewares
             {
                 var traceType = httpContext.Request.Query["type"].ToString();
                 inputDocs = from doc in inputDocs
-                         where string.Compare(doc.Type, traceType, StringComparison.OrdinalIgnoreCase) == 0
-                         select doc;
+                            where string.Compare(doc.Type, traceType, StringComparison.OrdinalIgnoreCase) == 0
+                            select doc;
             }
 
             //Hostfilter
@@ -190,7 +191,7 @@ namespace CallTracerLibrary.Middlewares
             {
                 int.TryParse(httpContext.Request.Query["code"].ToString(), out int code);
                 inputDocs = from doc in inputDocs
-                            where doc.ResponseStatusCode==code
+                            where doc.ResponseStatusCode == code
                             select doc;
             }
 
@@ -208,7 +209,7 @@ namespace CallTracerLibrary.Middlewares
             if (httpContext.IsFilterApplicable("detail"))
             {
                 inputDocs = from doc in inputDocs
-                            where string.Compare(doc.Type, "2xx", StringComparison.OrdinalIgnoreCase) !=0
+                            where string.Compare(doc.Type, "2xx", StringComparison.OrdinalIgnoreCase) != 0
                             select doc;
             }
 
@@ -247,7 +248,7 @@ namespace CallTracerLibrary.Middlewares
             asyncDocuments = await _repository.GetAll();
 
             //Apply Filters
-            asyncDocumentsFiltered = FilterTraces(asyncDocuments, httpContext);
+            asyncDocumentsFiltered = FilterTraces(asyncDocuments,httpContext);
 
             //Apply Pagination
             asyncDocumentsPaged = asyncDocumentsFiltered.Skip(recordsToSkip).Take(pageSize);

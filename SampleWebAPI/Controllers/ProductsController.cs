@@ -67,8 +67,7 @@ namespace SampleWebAPI.Controllers
         [HttpGet]
         public IActionResult GetAllProducts()
         {
-                throw new Exception("Just a test");
-                //return Ok(_productsProvider.GetAllProducts());
+                return Ok(_productsProvider.GetAllProducts());
         }
 
         //Return a specific Product matched by ID
@@ -81,6 +80,10 @@ namespace SampleWebAPI.Controllers
             {
 
                 return NotFound();
+            }
+            else if (id==13)
+            {
+                throw new Exception("Out of luck excpetion");
             }
             //return Ok(new JsonResult(product));
             return Ok(product);

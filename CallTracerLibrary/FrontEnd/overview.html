@@ -8,7 +8,46 @@
 
         h1 {
             text-align: center;
+            padding-top: 10px;
+            font-size: 36px;
+            padding: 0px;
+            margin: 0px;
+            line-height: 100px;
+            text-shadow: 0 -1px 1px rgba(0,0,0,0.25);
+            width: 310px;
+            float: left;
+            background-image: url("banner.jpg");
         }
+
+        .slogan {
+            float: right;
+            margin: 75px 20px 0px 0px;
+            font-size: 20px;
+        }
+
+        .banner {
+            width: 620px;
+            height: 100px;
+            margin: 7px auto;
+            -moz-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            -moz-border-radius: 15px;
+            -webkit-border-radius: 15px;
+            padding-left: 190px;
+        }
+
+        .banner0 {
+            background: #656964 url(banner0.png) no-repeat center left;
+            background-image: url("banner.jpg");
+        }
+
+
+        .banner2 {
+            color: #656A64;
+            background: #4CAF50 url(banner2.png) no-repeat center left;
+            font-family: "Palatino Linotype";
+        }
+
 
         #tracetable {
             font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
@@ -87,25 +126,88 @@
                 var _successCount = row.insertCell(j++).innerHTML = jsonObj[i].SuccessCount;
                 var _serverFailureCount = row.insertCell(j++).innerHTML = jsonObj[i].ServerFailureCount;
                 var _clientFailureCount = row.insertCell(j++).innerHTML = jsonObj[i].ClientFailureCount;
-                var _successAverageResponseTime = row.insertCell(j++).innerHTML = jsonObj[i].SuccessAverageResponseTime;
-                var _clientFailureAverageResponseTime = row.insertCell(j++).innerHTML = jsonObj[i].ClientFailureAverageResponseTime;
-                var _serverFailureAverageResponseTime = row.insertCell(j++).innerHTML = jsonObj[i].ServerFailureAverageResponseTime;
-                row.insertCell(j++).innerHTML = '<a href="/ui?detail&size=20&uri=' + _resource + '&starttimestamp=' + fromTimestamp
-                    + '&stoptimestamp=' + toTimestamp +
-                    '" target="_blank"> <div style="height:100%;width:100%">Details</div></a>';
+                var _successAverageResponseTime = row.insertCell(j++).innerHTML = jsonObj[i].SuccessAverageResponseTime.toFixed(3);
+                var _clientFailureAverageResponseTime = row.insertCell(j++).innerHTML = jsonObj[i].ClientFailureAverageResponseTime.toFixed(3);
+                var _serverFailureAverageResponseTime = row.insertCell(j++).innerHTML = jsonObj[i].ServerFailureAverageResponseTime.toFixed(3);
+                if (_clientFailureCount != 0 || _serverFailureCount != 0) {
+                    row.insertCell(j++).innerHTML = '<a href="/ui?detail&size=20&page=1&uri=' + _resource + '&starttimestamp=' + fromTimestamp
+                        + '&stoptimestamp=' + toTimestamp +
+                        '" target="_blank"> <div style="height:100%;width:100%">Redirect</div></a>';
+                }
+                else {
+                    row.insertCell(j++).innerHTML = "";
+                }
             }
         }
+
+        function sortTable(n) {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("tracetable");
+            switching = true;
+            //Set the sorting direction to ascending:
+            dir = "asc";
+            /*Make a loop that will continue until
+            no switching has been done:*/
+            while (switching) {
+                //start by saying: no switching is done:
+                switching = false;
+                rows = table.getElementsByTagName("TR");
+                /*Loop through all table rows (except the
+                first, which contains table headers):*/
+                for (i = 1; i < (rows.length - 1); i++) {
+                    //start by saying there should be no switching:
+                    shouldSwitch = false;
+                    /*Get the two elements you want to compare,
+                    one from current row and one from the next:*/
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    /*check if the two rows should switch place,
+                    based on the direction, asc or desc:*/
+                    if (dir == "asc") {
+                        if (parseFloat(x.innerHTML) > parseFloat(y.innerHTML)) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (parseFloat(x.innerHTML) < parseFloat(y.innerHTML)) { 
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    /*If a switch has been marked, make the switch
+                    and mark that a switch has been done:*/
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    //Each time a switch is done, increase this count by 1:
+                    switchcount++;
+                } else {
+                    /*If no switching has been done AND the direction is "asc",
+                    set the direction to "desc" and run the while loop again.*/
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+
     </script>
     <noscript>Sorry, your browser does not support JavaScript!</noscript>
 </head>
 
 <body>
-    <h1> APPNAME </h1>
+    <div class="banner banner2">
+        <h1>APPNAME</h1>
+        <div class="slogan">Powered by API Acumen</div>
+    </div>
 
     <options>
-        <br />Request Timestamp<br />
-        From:<input type="date" id="fromTimestamp" value="2018-04-01"><br />
-        Till:<input type="date" id="toTimestamp" value="2018-04-10">
+        <br />Trace Timeframe:<br /><br/>
+        From:<input type="date" id="fromTimestamp" value="">    To:<input type="date" id="toTimestamp" value="">
         <button onclick="onButtonClick()">Search</button>
 
         <br />
@@ -115,16 +217,16 @@
     <section>
         <table id="tracetable">
             <tr>
-                <th>Id</th>
+                <th onclick="sortTable(0)">Id</th>
                 <th>Resource</th>
-                <th>Request Count</th>
-                <th>Success Count</th>
-                <th>Server Failure Count</th>
-                <th>Client Failure Count</th>
-                <th>Success Average Response Time</th>
-                <th> ClientFailureAverageResponseTime</th>
-                <th>ServerFailureAverageResponseTime</th>
-                <th> Details </th>
+                <th onclick="sortTable(2)">Request Count</th> 
+                <th onclick="sortTable(3)">Success Count</th>
+                <th onclick="sortTable(4)">Server Failure Count</th>
+                <th onclick="sortTable(5)">Client Failure Count</th>
+                <th onclick="sortTable(6)">Success Average Response Time</th>
+                <th onclick="sortTable(7)"> ClientFailureAverageResponseTime</th>
+                <th onclick="sortTable(8)">ServerFailureAverageResponseTime</th>
+                <th> Info </th>
             </tr>
         </table>
     </section>

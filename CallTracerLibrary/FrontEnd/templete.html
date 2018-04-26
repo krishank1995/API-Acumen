@@ -8,7 +8,47 @@
 
         h1 {
             text-align: center;
+            padding-top: 10px;
+            font-size: 36px;
+            padding: 0px;
+            margin: 0px;
+            line-height: 100px;
+            text-shadow: 0 -1px 1px rgba(0,0,0,0.25);
+            width: 310px;
+            float: left;
+            background-image: url("banner.jpg");
         }
+
+        .slogan {
+            float: right;
+            margin: 75px 20px 0px 0px;
+            font-size: 20px;
+        }
+
+        .banner {
+            width: 620px;
+            height: 100px;
+            margin: 7px auto;
+            -moz-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            -moz-border-radius: 15px;
+            -webkit-border-radius: 15px;
+            padding-left: 190px;
+        }
+
+        .banner0 {
+            background: #656964 url(banner0.png) no-repeat center left;
+            background-image: url("banner.jpg");
+        }
+
+        
+        .banner2 {
+            color: #656A64;
+            background: #4CAF50 url(banner2.png) no-repeat center left;
+            font-family: "Palatino Linotype";
+        }
+
+     
 
         #tracetable {
             font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
@@ -21,26 +61,33 @@
             border-collapse: collapse;
             width: 100%;
         }
-            #tracetable td, #tracetable th {
+
+        #tracetable td, #tracetable th {
                 border: 1px solid #ddd;
                 padding: 8px;
             }
 
-            #tracetable tr:nth-child(even) {
+        #tracetable tr:nth-child(even) {
                 background-color: #f2f2f2;
             }
 
-            #tracetable tr:hover {
+        #tracetable tr:hover {
                 background-color: #ddd;
             }
 
-            #tracetable th {
+        #tracetable th {
                 padding-top: 12px;
                 padding-bottom: 12px;
                 text-align: left;
                 background-color: #4CAF50;
                 color: white;
             }
+
+        .paginationFunctions {
+        display: inline-block;
+        }
+
+     
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> 
     <script>
@@ -48,15 +95,40 @@
         var section = document.querySelector('section');
         var requestURL;
         var url_string = window.location.href;
+        var pageNumber = 0;
+        var pageSize = 20;
+        var foundResults;
         
 
         function onLoad() {
-            var e = document.getElementById("pageSize");
-            var pageSize = e.options[e.selectedIndex].value;
-            requestURL = url_string;
-            requestURL = requestURL.replace("/ui", "/trace");
-            requestURL = requestURL.replace("size=20", "size=" + pageSize);
-            requestTraces();
+
+            if (url_string.includes("detail")) {
+
+                document.getElementById("optionalButton").innerHTML = '<button onclick="onSearch()">Pagination Refresh</button>';
+                var filters = document.getElementsByClassName('filters'), i;
+
+                for (var i = 0; i < filters.length; i++) {
+                    filters[i].style.display = 'none';
+                }
+
+                var e = document.getElementById("pageSize");
+                pageSize = e.options[e.selectedIndex].value;
+                //var pageNumber = document.getElementById("pageNumber").value - 1;
+
+                requestURL = url_string;
+                requestURL = requestURL.replace("/ui", "/trace");
+                requestURL = requestURL.replace("size=20", "size=" + pageSize);
+                requestURL = requestURL.replace("page=1", "page=" + pageNumber);
+                requestTraces();
+            }
+
+            else {
+                document.getElementById("optionalButton").innerHTML = '<button onclick="onSearch()">Search</button>';
+               
+                onButtonClick();
+            }
+
+           
 
         }
 
@@ -64,9 +136,9 @@
 
         function onButtonClick() {
             var e = document.getElementById("pageSize");
-            var pageSize = e.options[e.selectedIndex].value;
+            pageSize = e.options[e.selectedIndex].value;
 
-            var pageNumber = document.getElementById("pageNumber").value - 1;
+            //var pageNumber = document.getElementById("pageNumber").value - 1;
             var hostName = document.getElementById("hostName").value;
             var responseCode = document.getElementById("responseCode").value;
             var fromTimestamp = document.getElementById("fromTimestamp").value;
@@ -129,6 +201,7 @@
             request.onload = function () {
                 var traces = request.response;
                 console.log(traces);
+                foundResults = traces.length;
                 showTracesTable(traces);
             }
         }
@@ -153,16 +226,58 @@
                 var _responseContentType = row.insertCell(j++).innerHTML = jsonObj[i].ResponseContentType;
                 var _responseStatusCode = row.insertCell(j++).innerHTML = jsonObj[i].ResponseStatusCode;
                 var _responseTimestamp = row.insertCell(j++).innerHTML = jsonObj[i].ResponseTimestamp;
-                var _responseTimeMs = row.insertCell(j++).innerHTML = jsonObj[i].ResponseTimeMs;
+                var _responseTimeMs = row.insertCell(j++).innerHTML = jsonObj[i].ResponseTimeMs.toFixed(3);
             }
 
         }
+
+        function onPrevious() {
+            if (pageNumber != 0) {
+                pageNumber--;
+            }
+
+            if (url_string.includes("detail")) {
+                onLoad();
+            }
+            else {
+                onButtonClick();
+            }
+
+        }
+
+        function onNext() {
+            if (foundResults == pageSize) {
+                pageNumber++;
+            }
+                
+            if (url_string.includes("detail")) {
+                onLoad();
+            }
+            else {
+                onButtonClick();
+            }
+        }
+
+        function onSearch() {
+            pageNumber = 0;
+            if (url_string.includes("detail")) {
+                onLoad();
+            }
+            else {
+                onButtonClick();
+            }
+        }
+
     </script>
     <noscript>Sorry, your browser does not support JavaScript!</noscript>
 </head>
 
 <body onload="onLoad()">
-    <h1> APPNAME </h1>
+
+    <div class="banner banner2">
+        <h1>APPNAME</h1>
+        <div class="slogan">Powered by API Acumen</div>
+    </div>
 
     <options>
 
@@ -175,9 +290,16 @@
             <option value="500">500</option>
             <option value="1000">1000</option>
         </select>
-        Page-Number:<input type="number" id="pageNumber" value="1">
-        <button onclick="onButtonClick()">Search</button>
-        <button onclick="onLoad()">Pagination Refresh</button>
+
+        <br /><br />
+
+        <div class="paginationFunctions">
+            <button onclick="onPrevious()">Previous</button>
+            <button onclick="onNext()">Next</button>
+        </div>
+
+        <optionalbutton id="optionalButton"> </optionalbutton>
+
         <br />
         <br />
     </options>
@@ -189,7 +311,7 @@
 
                 <th>
                     <label>Trace Type</label>
-                    <select id="traceType">
+                    <select id="traceType" class="filters">
                         <option value="ALL">ALL</option>
                         <option value="1xx">1xx</option>
                         <option value="2xx">2xx</option>
@@ -201,12 +323,12 @@
 
                 <th>Request Content</th>
                 <th>Request Content Type</th>
-                <th> Host-Name:<input type="text" id="hostName" value=""></th>
-                <th>Request-Uri:<input type="text" id="reqUri" value=""></th>
+                <th> Host-Name:<input type="text" id="hostName" value="" class="filters"> </th>
+                <th>Request-Uri:<input type="text" id="reqUri" value="" class="filters"> </th>
 
                 <th>
                     <label>Request Method</label>
-                    <select id="reqMethod">
+                    <select id="reqMethod" class="filters">
                         <option value="ALL">ALL</option>
                         <option value="GET">GET</option>
                         <option value="POST">POST</option>
@@ -218,14 +340,15 @@
                 </th>
 
                 <th>
-                    Request Timestamp<br/>  
-                    From:<input type="date" id="fromTimestamp" value="2018-04-01"><br/>
-                    Till:<input type="date" id="toTimestamp" value="2018-04-10">
+                    Request Timestamp<br />
+
+                    From:<input type="date" id="fromTimestamp" class="filters"><br />
+                    Till:<input type="date" id="toTimestamp" class="filters">
                 </th>
 
                 <th>Response Content</th>
                 <th>Response Content Type</th>
-                <th> Response-Code:<input type="text" id="responseCode" value=""></th>
+                <th> Response-Code:<input type="text" id="responseCode" value="" class="filters"></th>
                 <th>Response Timestamp</th>
                 <th>Response TimeMs</th>
             </tr>

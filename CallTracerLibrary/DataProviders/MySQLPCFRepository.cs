@@ -1,4 +1,5 @@
 ﻿using CallTracerLibrary.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,12 +25,6 @@ namespace CallTracerLibrary.DataProviders
             {
                 RelationalDatabaseCreator databaseCreator = (RelationalDatabaseCreator)_db.Database.GetService<IDatabaseCreator>();
             }
-
-        }
-
-        public static void InitializeMyContexts(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
         }
 
         public Task<TraceMetadata> Get(int id)
@@ -48,7 +43,6 @@ namespace CallTracerLibrary.DataProviders
                 {
                     list.Add(trace);
                 }
-
                 return list;
             }
         }
@@ -60,12 +54,11 @@ namespace CallTracerLibrary.DataProviders
 
         public Task SaveAsync(TraceMetadata value)
         {
-           
             _db.CallTraces.Add(value);
             return  _db.SaveChangesAsync();
         }
 
-        public Task<IEnumerable<AnalysisMetadata>> TraceAnalysis(DateTime stamp1,DateTime stamp2)
+        public Task<IEnumerable<AnalysisMetadata>> TraceAnalysis(DateTime stamp1, DateTime stamp2)
         {
             throw new NotImplementedException();
         }

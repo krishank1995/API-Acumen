@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CallTracerLibrary.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace CallTracerLibrary.DataProviders
 {
     public  class InMemoryRepository : IRepository<TraceMetadata,AnalysisMetadata, int>
     {
         private static List<TraceMetadata> _list =  new List<TraceMetadata>();
-
         public async Task<TraceMetadata> Get(int id)
         {
             return _list.ToList().Find(x => x.Id == id);
@@ -31,8 +31,7 @@ namespace CallTracerLibrary.DataProviders
             _list.Add(trace);
             return (null);  
         }
-
-        public Task<IEnumerable<AnalysisMetadata>> TraceAnalysis (DateTime stamp1,DateTime stamp2)
+        public Task<IEnumerable<AnalysisMetadata>> TraceAnalysis(DateTime stamp1, DateTime stamp2)
         {
             throw new NotImplementedException();
         }

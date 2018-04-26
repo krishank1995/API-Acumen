@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -11,6 +12,5 @@ namespace CallTracerLibrary.DataProviders
         Task<IEnumerable<TData>> GetAll();
         Task<TData> Get(TKey id);
         Task<IEnumerable<TAnalysis>> TraceAnalysis(DateTime stamp1, DateTime stamp2);
-
     }
 }

@@ -17,7 +17,7 @@ namespace SampleWebAPI
 {
     public class Startup
     {
-        public IConfiguration Configuration { get; }  //PCF WHAT IS THIS ??
+        public IConfiguration Configuration { get; }  //PCF
 
         public Startup(IConfiguration configuration) //PCF
         {
