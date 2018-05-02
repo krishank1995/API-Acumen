@@ -1,5 +1,4 @@
 ﻿using CallTracerLibrary.DataProviders;
-
 using CallTracerLibrary.Middlewares;
 using CallTracerLibrary.Models;
 using Microsoft.AspNetCore.Builder;
@@ -9,9 +8,8 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SampleWebAPI.DataProviders;
-
-
 using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
+
 
 namespace SampleWebAPI
 {
@@ -24,7 +22,6 @@ namespace SampleWebAPI
             Configuration = configuration;
 
         }
-
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
@@ -48,7 +45,7 @@ namespace SampleWebAPI
             services.AddSingleton<IProductsProvider, ProductsProviderMongo>();
 
           // services.AddSingleton<IRepository<TraceMetadata,int>, MySQLRepository>();    //InMemory,Mongo,MySQL --> Availible Repositoreis 
-              services.AddSingleton<IRepository<TraceMetadata,AnalysisMetadata, int>, MongoRepository>();
+              services.AddSingleton<IRepository<TraceMetadata,AnalysisMetadata, int>, MySQLPCFRepository>();
             // services.AddSingleton<IRepository<TraceMetadata, int>, InMemoryRepository>();
 
             services.AddSwaggerGen(c =>
@@ -60,15 +57,11 @@ namespace SampleWebAPI
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseCors("AllowAll");
             app.UseStaticFiles();
             app.UseSwagger().UseSwaggerUI( c=>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Random");
             });
-            //  app.TraceEndPoint();
-            
-           
 
             if (env.IsDevelopment())
             {

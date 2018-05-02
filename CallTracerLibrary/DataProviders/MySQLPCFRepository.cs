@@ -1,12 +1,10 @@
 ﻿using CallTracerLibrary.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
 namespace CallTracerLibrary.DataProviders
 {
     public class MySQLPCFRepository : IRepository<TraceMetadata,AnalysisMetadata, int>
@@ -21,10 +19,12 @@ namespace CallTracerLibrary.DataProviders
             _serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
             _db = _serviceScope.ServiceProvider.GetService<TraceMetadataContext>();
            
-            if (_db.Database.EnsureCreated() == true)
+            if (!_db.Database.EnsureCreated())
             {
                 RelationalDatabaseCreator databaseCreator = (RelationalDatabaseCreator)_db.Database.GetService<IDatabaseCreator>();
+                
             }
+           
         }
 
         public Task<TraceMetadata> Get(int id)
@@ -34,17 +34,15 @@ namespace CallTracerLibrary.DataProviders
 
         public async Task<IEnumerable<TraceMetadata>> GetAll()
         {
-            using (var context = _db)
-            {
                 List<TraceMetadata> list = new List<TraceMetadata>();
-                var result = context.CallTraces;
+                var result = _db.CallTraces;
                
                 foreach (var trace in result)
                 {
                     list.Add(trace);
                 }
                 return list;
-            }
+            
         }
 
         public Task<IEnumerable<TraceMetadata>> GetN(int n)
