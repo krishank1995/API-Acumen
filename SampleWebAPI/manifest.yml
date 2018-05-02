@@ -7,4 +7,5 @@ applications:
   env:
     ASPNETCORE_ENVIRONMENT: POCApps
     buildpack: dotnet_core_buildpack_203
-
+  services:
+   - MySqlService
