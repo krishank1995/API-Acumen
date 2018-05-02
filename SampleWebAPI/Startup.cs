@@ -44,9 +44,9 @@ namespace SampleWebAPI
            
             services.AddSingleton<IProductsProvider, ProductsProviderMongo>();
 
-          // services.AddSingleton<IRepository<TraceMetadata,int>, MySQLRepository>();    //InMemory,Mongo,MySQL --> Availible Repositoreis 
-              services.AddSingleton<IRepository<TraceMetadata,AnalysisMetadata, int>, MySQLPCFRepository>();
-            // services.AddSingleton<IRepository<TraceMetadata, int>, InMemoryRepository>();
+            services.AddSingleton<IRepository<TraceMetadata, AnalysisMetadata, int>, MongoRepository>();
+            //services.AddSingleton<IRepository<TraceMetadata,AnalysisMetadata, int>, MySQLPCFRepository>();
+            //services.AddSingleton<IRepository<TraceMetadata, AnalysisMetadata, int>, InMemoryRepository>();
 
             services.AddSwaggerGen(c =>
             {
