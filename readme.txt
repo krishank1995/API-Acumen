@@ -1,7 +1,7 @@
 					Call Tracer Library  (API Acumen) 
 
 The library captures the calls to SampleWebAPI (api/Products). It can be configured to store the information either In-Memory,MongoDB Database,
-MySQL Database. It is compatible with MySQL service over PCF and can connect to any MongoDB database in AMER region. 
+MySQL Database. It is compatible with MySQL service over PCF and can connect to any MongoDB database. 
 
 Library two Front-End endpoints:
 1. /ui --> UI for traces.
