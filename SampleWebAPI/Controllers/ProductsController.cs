@@ -74,19 +74,25 @@ namespace SampleWebAPI.Controllers
         [HttpGet("{id}",Name ="GetSpecificProduct")]
        // [Produces("application/json")]
         public IActionResult GetProduct(int id)
-        {
+        {   
+            if (id == 13)
+            {
+                throw new Exception("Out of luck excpetion");
+            }
+
             var product = _productsProvider.GetItemById(id);
             if (product == null)
             {
 
                 return NotFound();
             }
-            else if (id==13)
-            {
-                throw new Exception("Out of luck excpetion");
-            }
+           
             //return Ok(new JsonResult(product));
-            return Ok(product);
+            else
+            {
+                return Ok(product);
+            }
+          
         }
 
 

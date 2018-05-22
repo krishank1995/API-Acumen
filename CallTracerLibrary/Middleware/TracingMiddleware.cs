@@ -65,7 +65,7 @@ namespace CallTracerLibrary.Middlewares
                         }
 
                         MapMetadata(_trace, httpContext);
-                        _repository.SaveAsync(_trace);
+                        await _repository.SaveAsync(_trace);
                     }
 
                     catch (Exception ex)
@@ -76,7 +76,7 @@ namespace CallTracerLibrary.Middlewares
                         _trace.ResponseContentType = "N/A";
                         _trace.ResponseStatusCode = 500;
                         _trace.Type = "5xx";
-                        _repository.SaveAsync(_trace);
+                        await _repository.SaveAsync(_trace);
                         httpContext.Response.Body = originalBodyStream;
                         throw;
                     }
@@ -272,8 +272,6 @@ namespace CallTracerLibrary.Middlewares
             {
                 filePath = System.IO.Path.Combine(currentDirectory, "FrontEnd", "overview.html");
             }
-
-
 
             using (StreamReader streamReader = new StreamReader(filePath, Encoding.UTF8))
             {

@@ -44,13 +44,13 @@ namespace SampleWebAPI
            
             services.AddSingleton<IProductsProvider, ProductsProviderMongo>();
 
-            services.AddSingleton<IRepository<TraceMetadata, AnalysisMetadata, int>, MongoRepository>();
-            //services.AddSingleton<IRepository<TraceMetadata,AnalysisMetadata, int>, MySQLPCFRepository>();
             //services.AddSingleton<IRepository<TraceMetadata, AnalysisMetadata, int>, InMemoryRepository>();
+            //services.AddSingleton<IRepository<TraceMetadata,AnalysisMetadata, int>, MySQLPCFRepository>();
+            services.AddSingleton<IRepository<TraceMetadata, AnalysisMetadata, int>, MongoRepository>();
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Swashbuckle.AspNetCore.Swagger.Info { Title = "Random", Version = "v1" });
+                c.SwaggerDoc("v1", new Swashbuckle.AspNetCore.Swagger.Info { Title = "SampleWebAPI", Version = "v1" });
             });
         }
 

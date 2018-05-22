@@ -11,7 +11,7 @@ namespace SampleWebAPI.DataProviders
 {
     public class ProductsProviderMongo:IProductsProvider
     {
-        private static MongoClient client = new MongoClient("mongodb://AUSSWGIICACPE01.aus.amer.dell.com:27017");  //mongodb://pendwgiiap02.pen.apac.dell.com:27017
+        private static MongoClient client = new MongoClient("mongodb://localhost:27017"); //("mongodb://AUSSWGIICACPE01.aus.amer.dell.com:27017");  //mongodb://pendwgiiap02.pen.apac.dell.com:27017
         private static IMongoDatabase _database = client.GetDatabase("CallTracer");
         private static IMongoCollection<Products> collection = _database.GetCollection<Products>("Products");
 
